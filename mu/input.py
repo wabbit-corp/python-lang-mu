@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+
 @dataclass
 class Pos:
     line: int
@@ -9,18 +10,19 @@ class Pos:
     def forward_via(self, char: str):
         assert len(char) == 1
 
-        if char == '\n':
+        if char == "\n":
             return Pos(self.line + 1, 1, self.index + 1)
         else:
             return Pos(self.line, self.col + 1, self.index + 1)
-    
+
     def backward_via(self, char: str):
         assert len(char) == 1
 
-        if char == '\n':
+        if char == "\n":
             raise ValueError("Cannot move backwards over a newline")
         else:
             return Pos(self.line, self.col - 1, self.index - 1)
+
 
 @dataclass
 class Span:
@@ -72,8 +74,8 @@ class Span:
 
         new_raw = self.raw[start_offset:stop_offset]
         return Span(new_start, new_end, new_raw)
-    
-    def __add__(self, other: 'Span') -> 'Span':
+
+    def __add__(self, other: "Span") -> "Span":
         """
         Merge two spans if they are contiguous, meaning:
         self.end.index == other.start.index.
@@ -92,8 +94,9 @@ class Span:
         new_end = other.end
         return Span(new_start, new_end, new_raw)
 
+
 class _Input:
-    EOS = '\0'
+    EOS = "\0"
 
     def __init__(self, str: str):
         self.str = str
@@ -105,7 +108,7 @@ class _Input:
         self.mark_index = 0
         self.mark_line = 1
         self.mark_column = 1
-        
+
         self.current = _Input.EOS if len(str) == 0 else str[0]
 
     @property
@@ -114,20 +117,22 @@ class _Input:
 
     def next(self):
         if self.index < len(self.str):
-            if self.current == '\n':
+            if self.current == "\n":
                 self.line += 1
                 self.column = 1
             else:
                 self.column += 1
 
             self.index += 1
-            self.current = _Input.EOS if self.index >= len(self.str) else self.str[self.index]
+            self.current = (
+                _Input.EOS if self.index >= len(self.str) else self.str[self.index]
+            )
         else:
             self.current = _Input.EOS
 
     def capture(self) -> Span:
         start_pos = Pos(self.mark_line, self.mark_column, self.mark_index)
-        result = Span(start_pos, self.position, self.str[self.mark_index:self.index])
+        result = Span(start_pos, self.position, self.str[self.mark_index : self.index])
         self.mark_index = self.index
         self.mark_line = self.line
         self.mark_column = self.column
@@ -140,12 +145,12 @@ class _Input:
         chars = []
         for i in range(start_index, end_index):
             char = self.str[i]
-            if char == ' ':
-                char = '·'
-            if char == '\n':
-                char = '\\n'
-            elif char == '\t':
-                char = '\\t'
+            if char == " ":
+                char = "·"
+            if char == "\n":
+                char = "\\n"
+            elif char == "\t":
+                char = "\\t"
             elif not char.isprintable():
                 char = f"\\x{ord(char):02x}"
 
@@ -154,12 +159,14 @@ class _Input:
             else:
                 chars.append(char)
 
-        snippet = ' '.join(chars)
+        snippet = " ".join(chars)
 
         return f"Input(line={self.line}, column={self.column}, {snippet})"
 
+
 DEBUG_ENABLED = False
 DEBUG_DEPTH = 0
+
 
 # debug decorator
 def debug(func):
@@ -169,8 +176,10 @@ def debug(func):
     def wrapper(*args, **kwargs):
         global DEBUG_DEPTH
         saved_depth = DEBUG_DEPTH
-        prefix = '  ' * DEBUG_DEPTH
-        print(f"{prefix}{func.__name__}({', '.join(repr(x) for x in args)}, {kwargs}) {{")
+        prefix = "  " * DEBUG_DEPTH
+        print(
+            f"{prefix}{func.__name__}({', '.join(repr(x) for x in args)}, {kwargs}) {{"
+        )
         try:
             DEBUG_DEPTH += 1
             result = func(*args, **kwargs)
@@ -179,11 +188,12 @@ def debug(func):
             exception = e
             raise e
         finally:
-            if 'exception' in locals():
+            if "exception" in locals():
                 print(f"{prefix}}}raise {exception}")
             else:
                 print(f"{'  ' * DEBUG_DEPTH}return {repr(result)}")
             DEBUG_DEPTH -= 1
             assert saved_depth == DEBUG_DEPTH
             print(f"{prefix}}}")
+
     return wrapper

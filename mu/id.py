@@ -1,7 +1,8 @@
 import collections.abc
 
+
 class Id:
-    __slots__ = ('_value',)
+    __slots__ = ("_value",)
 
     def __init__(self, value):
         self._value = value
@@ -19,10 +20,10 @@ class Id:
         if not isinstance(other, Id):
             return NotImplemented
         return self._value is other._value
-    
+
     def __repr__(self):
         return f"{self.__class__.__name__}(value={self._value!r})"
-    
+
 
 class IdDict(collections.abc.MutableMapping):
     """
@@ -50,7 +51,7 @@ class IdDict(collections.abc.MutableMapping):
         """
         Iteration yields the *actual key objects*, not their ids.
         """
-        for (stored_key, _) in self._storage.values():
+        for stored_key, _ in self._storage.values():
             yield stored_key
 
     def __len__(self):
@@ -60,25 +61,25 @@ class IdDict(collections.abc.MutableMapping):
         return id(key) in self._storage
 
     def keys(self):
-        for (stored_key, _) in self._storage.values():
+        for stored_key, _ in self._storage.values():
             yield stored_key
 
     def values(self):
-        for (_, value) in self._storage.values():
+        for _, value in self._storage.values():
             yield value
 
     def items(self):
-        for (stored_key, value) in self._storage.values():
+        for stored_key, value in self._storage.values():
             yield (stored_key, value)
 
     def get(self, key, default=None):
         return self._storage.get(id(key), (None, default))[1]
 
     def __repr__(self):
-        items_str = ', '.join(
-            f'{repr(k)}: {repr(v)}' for (k, v) in self._storage.values()
+        items_str = ", ".join(
+            f"{repr(k)}: {repr(v)}" for (k, v) in self._storage.values()
         )
-        return f'{self.__class__.__name__}({{{items_str}}})'
+        return f"{self.__class__.__name__}({{{items_str}}})"
 
 
 # Provide an alias
