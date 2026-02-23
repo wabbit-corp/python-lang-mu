@@ -28,7 +28,7 @@ from mu.types import SSeq as SSeq
 from mu.types import SStr as SStr
 
 try:
-    __version__ = version("python-lang-mu")
+    __version__ = version("mu")
 except PackageNotFoundError:  # pragma: no cover - local editable installs
     __version__ = "0.2.0"
 

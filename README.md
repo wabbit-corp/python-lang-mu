@@ -1,6 +1,6 @@
-# python-lang-mu
+# mu
 
-`python-lang-mu` is a Python implementation of the Mu configuration language.
+`mu` is a Python implementation of the Mu configuration language.
 It provides:
 
 - A parser that preserves Mu syntax as an AST.
@@ -15,7 +15,7 @@ This package gives you a strict, testable way to parse and decode those configs 
 ## Installation
 
 ```bash
-pip install python-lang-mu
+pip install mu
 ```
 
 ## Quickstart: Parsing

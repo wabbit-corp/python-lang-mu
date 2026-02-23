@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "python-lang-mu"
+name = "mu"
 version = "0.2.0"
 description = "Mu configuration language parser and typed decoder for Python."
 authors = ["Sir Wabbit <wabbit@wabbit.one>"]
