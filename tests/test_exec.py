@@ -1,8 +1,7 @@
 import pytest
 
-from mu.parser import sexpr, MuParserError
-from mu.types import SAtom, SGroup, SSeq, SMap, SStr, SMapField, SExpr
-from mu.exec import ExecutionContext, eval_sexpr, MuNameError, Quoted
+from mu.exec import ExecutionContext, MuNameError, Quoted, eval_sexpr
+from mu.types import SAtom, SExpr, SGroup, SSeq, SStr
 
 
 @pytest.fixture
@@ -78,7 +77,7 @@ def test_function_signatures(ctx):
     )
 
     @ctx.register(name="app-jvm")
-    def app_jvm(name: str, main: str, dependencies: List[str]) -> str:
+    def app_jvm(name: str, main: str, dependencies: list[str]) -> str:
         return f"Creating JVM app: {name} with main class {main} and dependencies: {dependencies}"
 
     # Why is it list[str], not List[str]?
@@ -111,10 +110,8 @@ def test_register_without_decorator(ctx):
 
 
 def test_complex_call(ctx):
-    from typing import List
-
     @ctx.register(name="app-jvm")
-    def app_jvm(name: str, main: str, dependencies: List[str]) -> str:
+    def app_jvm(name: str, main: str, dependencies: list[str]) -> str:
         return f"Creating JVM app: {name} with main class {main} and dependencies: {dependencies}"
 
     # Test the function

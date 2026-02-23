@@ -69,8 +69,7 @@ class IdDict(collections.abc.MutableMapping):
             yield value
 
     def items(self):
-        for stored_key, value in self._storage.values():
-            yield (stored_key, value)
+        yield from self._storage.values()
 
     def get(self, key, default=None):
         return self._storage.get(id(key), (None, default))[1]

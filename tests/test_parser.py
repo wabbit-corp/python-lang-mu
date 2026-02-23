@@ -1,7 +1,7 @@
 import pytest
 
-from mu.parser import sexpr, MuParserError
-from mu.types import SAtom, SGroup, SSeq, SMap, SStr, SMapField, SDoc, SExpr
+from mu.parser import MuParserError, sexpr
+from mu.types import SAtom, SExpr, SGroup, SMap, SMapField, SSeq, SStr
 
 
 def parse(expr: str) -> list[SExpr]:

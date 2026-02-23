@@ -1,4 +1,3 @@
-from typing import List, Tuple, TypeAlias, Optional, Callable, Any
 from dataclasses import dataclass
 
 from mu.input import Span
@@ -46,8 +45,8 @@ class SExpr:
 
 @dataclass
 class TokenSpans:
-    token: Optional[Span] = None
-    space: Optional[Span] = None
+    token: Span | None = None
+    space: Span | None = None
 
     def __str__(self) -> str:
         result = ""
@@ -62,7 +61,7 @@ class TokenSpans:
 @dataclass
 class SAtom(SExpr):
     value: str
-    span: Optional[TokenSpans] = None
+    span: TokenSpans | None = None
 
     def __str__(self) -> str:
         if self.span is not None:
@@ -75,7 +74,7 @@ class SAtom(SExpr):
 @dataclass
 class SStr(SExpr):
     value: str
-    span: Optional[TokenSpans] = None
+    span: TokenSpans | None = None
 
     def __str__(self) -> str:
         if self.span is not None:
@@ -87,7 +86,7 @@ class SStr(SExpr):
 @dataclass
 class SReal(SExpr):
     value: str
-    span: Optional[TokenSpans] = None
+    span: TokenSpans | None = None
 
     def __str__(self) -> str:
         if self.span is not None:
@@ -99,7 +98,7 @@ class SReal(SExpr):
 @dataclass
 class SInt(SExpr):
     value: int
-    span: Optional[TokenSpans] = None
+    span: TokenSpans | None = None
 
     def __str__(self) -> str:
         if self.span is not None:
@@ -110,8 +109,8 @@ class SInt(SExpr):
 # 123/456
 @dataclass
 class SRational(SExpr):
-    value: Tuple[int, int]
-    span: Optional[TokenSpans] = None
+    value: tuple[int, int]
+    span: TokenSpans | None = None
 
     def __str__(self) -> str:
         if self.span is not None:
@@ -122,11 +121,11 @@ class SRational(SExpr):
 # (a b c)
 @dataclass
 class SGroup(SExpr):
-    values: List[SExpr]
+    values: list[SExpr]
 
-    open_bracket: Optional[TokenSpans] = None
-    separators: Optional[List[TokenSpans]] = None
-    close_bracket: Optional[TokenSpans] = None
+    open_bracket: TokenSpans | None = None
+    separators: list[TokenSpans] | None = None
+    close_bracket: TokenSpans | None = None
 
     def __str__(self) -> str:
         result = ""
@@ -146,11 +145,11 @@ class SGroup(SExpr):
 # [a b c] | [a, b, c] | []
 @dataclass
 class SSeq(SExpr):
-    values: List[SExpr]
+    values: list[SExpr]
 
-    open_bracket: Optional[TokenSpans] = None
-    separators: Optional[List[TokenSpans]] = None
-    close_bracket: Optional[TokenSpans] = None
+    open_bracket: TokenSpans | None = None
+    separators: list[TokenSpans] | None = None
+    close_bracket: TokenSpans | None = None
 
     def __str__(self) -> str:
         result = ""
@@ -171,7 +170,7 @@ class SSeq(SExpr):
 class SMapField:
     key: SExpr
     value: SExpr
-    separator: Optional[TokenSpans] = None
+    separator: TokenSpans | None = None
 
     def __str__(self) -> str:
         result = ""
@@ -185,11 +184,11 @@ class SMapField:
 # { a : b, c : d }
 @dataclass
 class SMap(SExpr):
-    values: List[SMapField]
+    values: list[SMapField]
 
-    open_bracket: Optional[Span] = None
-    separators: Optional[List[TokenSpans]] = None
-    close_bracket: Optional[Span] = None
+    open_bracket: TokenSpans | None = None
+    separators: list[TokenSpans] | None = None
+    close_bracket: TokenSpans | None = None
 
     def __str__(self) -> str:
         result = ""
@@ -208,8 +207,8 @@ class SMap(SExpr):
 
 @dataclass
 class SDoc:
-    exprs: List[SExpr]
-    leading_space: Optional[Span] = None
+    exprs: list[SExpr]
+    leading_space: Span | None = None
 
     def __str__(self) -> str:
         result = ""

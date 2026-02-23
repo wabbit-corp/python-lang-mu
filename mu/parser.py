@@ -1,6 +1,6 @@
-from typing import List
-from mu.types import SExpr, SAtom, SStr, SGroup, SSeq, SMap, SMapField, TokenSpans, SDoc
-from mu.input import _Input, Pos, Span, debug
+
+from mu.input import Span, _Input, debug
+from mu.types import SAtom, SDoc, SExpr, SGroup, SMap, SMapField, SSeq, SStr, TokenSpans
 
 
 class MuParserError(Exception):
@@ -48,8 +48,8 @@ def _parse_group(input: _Input) -> SGroup:
     input.next()
     open_bracket = TokenSpans(token=input.capture(), space=_skip_whitespace(input))
 
-    values: List[SExpr] = []
-    separators: List[TokenSpans] = []
+    values: list[SExpr] = []
+    separators: list[TokenSpans] = []
     while input.current != ")":
         if input.current == _Input.EOS:
             break
@@ -84,8 +84,8 @@ def _parse_list(input: _Input) -> SSeq:
     input.next()
     open_bracket = TokenSpans(token=input.capture(), space=_skip_whitespace(input))
 
-    values: List[SExpr] = []
-    separators: List[TokenSpans] = []
+    values: list[SExpr] = []
+    separators: list[TokenSpans] = []
     while input.current != "]":
         if input.current == _Input.EOS:
             raise MuParserError("Unexpected end of input")
@@ -228,8 +228,8 @@ def _parse_map(input: _Input) -> SMap:
     input.next()
     open_bracket = TokenSpans(token=input.capture(), space=_skip_whitespace(input))
 
-    values: List[SMapField] = []
-    separators: List[TokenSpans] = []
+    values: list[SMapField] = []
+    separators: list[TokenSpans] = []
     while input.current != "}":
         if input.current == _Input.EOS:
             raise MuParserError("Unexpected end of input")
@@ -273,7 +273,7 @@ def _parse_map(input: _Input) -> SMap:
 
 @debug
 def sexpr(input: str, no_spans: bool = True) -> SDoc:
-    top_level: List[SExpr] = []
+    top_level: list[SExpr] = []
     input_r = _Input(input)
     leading_space = _skip_whitespace(input_r)
     while input_r.current != _Input.EOS:

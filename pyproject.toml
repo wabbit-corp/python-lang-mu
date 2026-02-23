@@ -1,0 +1,59 @@
+[tool.poetry]
+name = "python-lang-mu"
+version = "0.2.0"
+description = "Mu configuration language parser and typed decoder for Python."
+authors = ["Sir Wabbit <wabbit@wabbit.one>"]
+license = "AGPL-3.0-or-later"
+readme = "README.md"
+homepage = "https://github.com/wabbit-corp/python-lang-mu"
+repository = "https://github.com/wabbit-corp/python-lang-mu"
+keywords = ["configuration", "parser", "sexpr", "typed-decoding", "mu"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+packages = [{ include = "mu" }]
+
+[tool.poetry.urls]
+"Issue Tracker" = "https://github.com/wabbit-corp/python-lang-mu/issues"
+
+[tool.poetry.dependencies]
+python = ">=3.10"
+
+
+[tool.black]
+line-length = 120
+target-version = ["py310"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["F", "E", "W", "I", "B", "UP"]
+ignore = ["E501"]
+
+[tool.coverage.run]
+branch = true
+source = ["mu"]
+omit = ["**/__pycache__/*", ".venv/*", "tests/*"]
+
+[tool.coverage.report]
+show_missing = true
+skip_empty = true
+fail_under = 80
+precision = 0
+
+[tool.coverage.xml]
+output = "coverage.xml"
+
+[build-system]
+requires = ["poetry-core>=1.7.0"]
+build-backend = "poetry.core.masonry.api"

@@ -1,36 +1,25 @@
-from typing import List, Tuple, Dict, Any, NewType, Callable, Optional, Generic, TypeVar
-import typing
-import traceback
-from dataclasses import dataclass, field
-import dataclasses
-import re
 import inspect
-from collections import OrderedDict
+import re
+import typing
 from abc import ABC, abstractmethod
+from collections import OrderedDict
+from collections.abc import Callable
+from dataclasses import dataclass, field
+from typing import Any
 
-from mu.types import SExpr, SAtom, SStr, SGroup, SSeq, SMap, SDoc
 from mu.parser import sexpr
+from mu.quoted import Quoted
+from mu.types import SAtom, SDoc, SExpr, SGroup, SMap, SSeq, SStr
 
 
 class MuNameError(NameError):
     pass
 
 
-T = TypeVar("T")
-
-
-class Quoted(Generic[T]):
-    def __init__(self, value: T):
-        self.value = value
-
-    def __repr__(self) -> str:
-        return f"Quoted({self.value!r})"
-
-
 @dataclass
 class FunctionSignature:
-    arg_names: List[str]
-    arg_types: Dict[str, Any]
+    arg_names: list[str]
+    arg_types: dict[str, Any]
     return_type: Any
 
     def __str__(self):
@@ -66,9 +55,6 @@ class NativeFunction(CallableObject):
 
     def __call__(self, ctx: "ExecutionContext", *args: Any, **kwargs: Any) -> Any:
         bound_args = self.signature.arg_names[: len(args)]
-        bound_kwargs = {
-            k: v for k, v in kwargs.items() if k in self.signature.arg_names
-        }
 
         arg_types = self.signature.arg_types
 
@@ -102,10 +88,10 @@ class NativeFunction(CallableObject):
 
 @dataclass
 class ExecutionContext:
-    env: Dict[str, Any] = field(default_factory=dict)
+    env: dict[str, Any] = field(default_factory=dict)
 
     def register(
-        self, func: Callable | None = None, name: Optional[str] = None
+        self, func: Callable | None = None, name: str | None = None
     ) -> Callable | NativeFunction:
         name_override = name
 
@@ -139,7 +125,7 @@ class ExecutionContext:
 
 def eval_sexpr(
     ctx: ExecutionContext,
-    e: SDoc | SExpr | List[SExpr],
+    e: SDoc | SExpr | list[SExpr],
     ignore_toplevel_exceptions: bool = False,
 ) -> Any:
     if isinstance(e, SDoc):
@@ -158,7 +144,7 @@ def eval_sexpr(
 
                 module_obj = importlib.import_module(module)
                 result = getattr(module_obj, attr)
-                if hasattr(result, "__call__"):
+                if callable(result):
                     sig = inspect.signature(result)
                     arg_names = list(sig.parameters.keys())
                     type_hints = typing.get_type_hints(result)

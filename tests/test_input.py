@@ -1,4 +1,5 @@
 import pytest
+
 from mu.input import Pos, Span
 
 # ------------------------------
