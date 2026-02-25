@@ -47,19 +47,28 @@ assert app.values[0].value == "app-jvm"
 
 ```python
 from dataclasses import dataclass
-from typing import Annotated
 
-from mu import ZeroOrMore, parse_one
+from mu import parse_one
 
 
 @dataclass
-class Demo:
+class Http:
+    port: int
+
+
+@dataclass
+class Worker:
+    queue: str
+
+
+@dataclass
+class Service:
     name: str
-    aliases: Annotated[list[str], ZeroOrMore]
+    mode: Http | Worker
 
 
-cfg = parse_one('(demo :name "x" :aliases "a" "b")', Demo)
-assert cfg == Demo(name="x", aliases=["a", "b"])
+cfg = parse_one('(service "api" :mode (http :port 8080))', Service)
+assert cfg == Service(name="api", mode=Http(port=8080))
 ```
 
 ## Error handling
