@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "lang-mu"
-version = "0.2.0"
+version = "0.2.1"
 description = "Mu configuration language parser and typed decoder for Python."
 authors = ["Sir Wabbit <wabbit@wabbit.one>"]
 license = "AGPL-3.0-or-later"

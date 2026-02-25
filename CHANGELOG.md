@@ -6,6 +6,8 @@ This project follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) an
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-02-25
+
 ### Added
 
 - MkDocs documentation site with installation, quickstart, typed decoding, error handling, compatibility, and FAQ pages.
