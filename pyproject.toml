@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "mu"
+name = "lang-mu"
 version = "0.2.0"
 description = "Mu configuration language parser and typed decoder for Python."
 authors = ["Sir Wabbit <wabbit@wabbit.one>"]
@@ -27,6 +27,10 @@ packages = [{ include = "mu" }]
 [tool.poetry.dependencies]
 python = ">=3.10"
 
+[tool.poetry.group.docs.dependencies]
+mkdocs = ">=1.6,<2.0"
+mkdocs-material = ">=9.6,<9.7"
+codespell = ">=2.3,<3.0"
 
 [tool.black]
 line-length = 120

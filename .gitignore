@@ -2,10 +2,13 @@
 Thumbs.db
 
 /.is-dev-mode
+/.is-local-mode
 /.is-ij-mode
 
 # Python .gitignore
 __pycache__/
+.mypy_cache/
+.ruff_cache/
 *.pyc
 *.pyo
 *.pyd
@@ -38,3 +41,4 @@ env.bak/
 venv.bak/
 pip-log.txt
 pip-delete-this-directory.txt
+site/

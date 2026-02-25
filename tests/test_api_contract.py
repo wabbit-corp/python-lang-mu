@@ -7,60 +7,60 @@ import pytest
 
 import mu
 from mu import (
-    MuDecodeContext,
-    MuDecodeError,
-    MuDeserialize,
-    MuDeserializerFn,
-    MuDeserializerRegistry,
-    MuName,
-    MuOneOrMore,
-    MuOptional,
-    MuParserError,
-    MuZeroOrMore,
+    AtomExpr,
+    DecodeContext,
+    DecodeError,
+    DecoderFn,
+    DecoderRegistry,
+    DecodeWith,
+    Document,
+    Expr,
+    FieldName,
+    GroupExpr,
+    MappingExpr,
+    MappingField,
+    OneOrMore,
+    OptionalArg,
+    ParseError,
     Quoted,
-    SAtom,
-    SDoc,
-    SExpr,
-    SGroup,
-    SMap,
-    SMapField,
-    SSeq,
-    SStr,
-    decode_expr,
-    mu_tag,
-    parse_many_typed,
-    parse_one_typed,
-    sexpr,
+    SequenceExpr,
+    StringExpr,
+    ZeroOrMore,
+    decode,
+    parse,
+    parse_many,
+    parse_one,
+    tag,
 )
-from mu.exec import ExecutionContext, MuNameError, eval_sexpr
+from mu.exec import EvalContext, EvalNameError, eval_expr
 
 
 def test_stable_top_level_imports_exist() -> None:
     stable_symbols = [
-        MuParserError,
+        ParseError,
         Quoted,
-        MuDecodeContext,
-        MuDecodeError,
-        MuDeserialize,
-        MuDeserializerFn,
-        MuDeserializerRegistry,
-        MuName,
-        MuOneOrMore,
-        MuOptional,
-        MuZeroOrMore,
-        SAtom,
-        SDoc,
-        SExpr,
-        SGroup,
-        SMap,
-        SMapField,
-        SSeq,
-        SStr,
-        decode_expr,
-        mu_tag,
-        parse_many_typed,
-        parse_one_typed,
-        sexpr,
+        DecodeContext,
+        DecodeError,
+        DecodeWith,
+        DecoderFn,
+        DecoderRegistry,
+        FieldName,
+        OneOrMore,
+        OptionalArg,
+        ZeroOrMore,
+        AtomExpr,
+        Document,
+        Expr,
+        GroupExpr,
+        MappingExpr,
+        MappingField,
+        SequenceExpr,
+        StringExpr,
+        decode,
+        tag,
+        parse_many,
+        parse_one,
+        parse,
     ]
     assert all(stable_symbols)
     assert isinstance(mu.__version__, str)
@@ -68,21 +68,21 @@ def test_stable_top_level_imports_exist() -> None:
 
 
 def test_experimental_runtime_imports_exist() -> None:
-    assert ExecutionContext
-    assert eval_sexpr
-    assert MuNameError
+    assert EvalContext is not None
+    assert eval_expr is not None
+    assert EvalNameError is not None
 
 
 @dataclass
 class Demo:
     name: str
-    aliases: Annotated[list[str], MuZeroOrMore]
+    aliases: Annotated[list[str], ZeroOrMore]
 
 
 def test_readme_contract_parser_and_typed_example() -> None:
-    parsed = sexpr('(demo :name "x" :aliases "a" "b")')
-    assert isinstance(parsed, SDoc)
-    result = parse_one_typed('(demo :name "x" :aliases "a" "b")', Demo)
+    parsed = parse('(demo :name "x" :aliases "a" "b")')
+    assert isinstance(parsed, Document)
+    result = parse_one('(demo :name "x" :aliases "a" "b")', Demo)
     assert result == Demo(name="x", aliases=["a", "b"])
 
 
@@ -92,5 +92,5 @@ class Counter:
 
 
 def test_readme_contract_error_handling_example() -> None:
-    with pytest.raises(MuDecodeError):
-        parse_one_typed('(counter :value "not-an-int")', Counter)
+    with pytest.raises(DecodeError):
+        parse_one('(counter :value "not-an-int")', Counter)

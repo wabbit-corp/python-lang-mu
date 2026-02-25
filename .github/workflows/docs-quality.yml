@@ -1,0 +1,49 @@
+name: Docs Quality
+
+on:
+  pull_request:
+  push:
+    branches:
+      - "**"
+    tags:
+      - "v*"
+
+jobs:
+  docs-quality:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e . pytest "mkdocs>=1.6,<2.0" "mkdocs-material>=9.6,<9.7" codespell
+
+      - name: Enforce changelog/docs updates on PRs
+        if: github.event_name == 'pull_request'
+        run: python scripts/check_changelog_guard.py
+
+      - name: Check generated API docs
+        run: python scripts/generate_api_docs.py --check
+
+      - name: Check markdown links
+        run: python scripts/check_docs_links.py
+
+      - name: Test documentation snippets
+        run: python -m pytest -q tests/test_docs_snippets.py
+
+      - name: Spell check docs
+        run: |
+          codespell README.md docs CHANGELOG.md CONTRIBUTING.md \
+            --ignore-words=.codespell-ignore-words.txt
+
+      - name: Build docs
+        run: mkdocs build --strict

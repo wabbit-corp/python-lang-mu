@@ -1,100 +1,101 @@
 import pytest
 
-from mu.parser import MuParserError, sexpr
-from mu.types import SAtom, SExpr, SGroup, SMap, SMapField, SSeq, SStr
+from mu.parser import ParseError
+from mu.parser import parse as parse_mu
+from mu.types import AtomExpr, Expr, GroupExpr, MappingExpr, MappingField, SequenceExpr, StringExpr
 
 
-def parse(expr: str) -> list[SExpr]:
-    doc = sexpr(expr, no_spans=False)
+def parse_expr(expr: str) -> list[Expr]:
+    doc = parse_mu(expr, no_spans=False)
     assert str(doc) == expr
     return doc.drop_spans().exprs
 
 
 def test_parser():
     # Test empty input
-    assert parse("") == []
+    assert parse_expr("") == []
 
     # Test whitespace handling
-    assert parse("  \t\n  ") == []
-    assert parse(" a  b \t c \n d ") == [SAtom("a"), SAtom("b"), SAtom("c"), SAtom("d")]
+    assert parse_expr("  \t\n  ") == []
+    assert parse_expr(" a  b \t c \n d ") == [AtomExpr("a"), AtomExpr("b"), AtomExpr("c"), AtomExpr("d")]
 
-    assert parse("(a b c)") == [SGroup([SAtom("a"), SAtom("b"), SAtom("c")])]
-    assert parse("[a b c]") == [SSeq([SAtom("a"), SAtom("b"), SAtom("c")])]
-    assert parse("[a, b , c ,d]") == [
-        SSeq([SAtom("a"), SAtom("b"), SAtom("c"), SAtom("d")])
-    ]
-
-    assert parse("a b c") == [SAtom("a"), SAtom("b"), SAtom("c")]
-    assert parse("a b (c d)") == [
-        SAtom("a"),
-        SAtom("b"),
-        SGroup([SAtom("c"), SAtom("d")]),
-    ]
-    assert parse("a b [c d]") == [
-        SAtom("a"),
-        SAtom("b"),
-        SSeq([SAtom("c"), SAtom("d")]),
-    ]
-    assert parse("a b (c d) [e f]") == [
-        SAtom("a"),
-        SAtom("b"),
-        SGroup([SAtom("c"), SAtom("d")]),
-        SSeq([SAtom("e"), SAtom("f")]),
+    assert parse_expr("(a b c)") == [GroupExpr([AtomExpr("a"), AtomExpr("b"), AtomExpr("c")])]
+    assert parse_expr("[a b c]") == [SequenceExpr([AtomExpr("a"), AtomExpr("b"), AtomExpr("c")])]
+    assert parse_expr("[a, b , c ,d]") == [
+        SequenceExpr([AtomExpr("a"), AtomExpr("b"), AtomExpr("c"), AtomExpr("d")])
     ]
 
-    assert parse("{ a : b }") == [SMap([SMapField(SAtom("a"), SAtom("b"))])]
-    assert parse("{ a : b, (a) : 1 }") == [
-        SMap(
+    assert parse_expr("a b c") == [AtomExpr("a"), AtomExpr("b"), AtomExpr("c")]
+    assert parse_expr("a b (c d)") == [
+        AtomExpr("a"),
+        AtomExpr("b"),
+        GroupExpr([AtomExpr("c"), AtomExpr("d")]),
+    ]
+    assert parse_expr("a b [c d]") == [
+        AtomExpr("a"),
+        AtomExpr("b"),
+        SequenceExpr([AtomExpr("c"), AtomExpr("d")]),
+    ]
+    assert parse_expr("a b (c d) [e f]") == [
+        AtomExpr("a"),
+        AtomExpr("b"),
+        GroupExpr([AtomExpr("c"), AtomExpr("d")]),
+        SequenceExpr([AtomExpr("e"), AtomExpr("f")]),
+    ]
+
+    assert parse_expr("{ a : b }") == [MappingExpr([MappingField(AtomExpr("a"), AtomExpr("b"))])]
+    assert parse_expr("{ a : b, (a) : 1 }") == [
+        MappingExpr(
             [
-                SMapField(SAtom("a"), SAtom("b")),
-                SMapField(SGroup([SAtom("a")]), SAtom("1")),
+                MappingField(AtomExpr("a"), AtomExpr("b")),
+                MappingField(GroupExpr([AtomExpr("a")]), AtomExpr("1")),
             ]
         )
     ]
-    assert parse("{a : b}") == [SMap([SMapField(SAtom("a"), SAtom("b"))])]
-    assert parse("{ a : b }") == [SMap([SMapField(SAtom("a"), SAtom("b"))])]
-    assert parse("{a : b, c : d}") == [
-        SMap([SMapField(SAtom("a"), SAtom("b")), SMapField(SAtom("c"), SAtom("d"))])
+    assert parse_expr("{a : b}") == [MappingExpr([MappingField(AtomExpr("a"), AtomExpr("b"))])]
+    assert parse_expr("{ a : b }") == [MappingExpr([MappingField(AtomExpr("a"), AtomExpr("b"))])]
+    assert parse_expr("{a : b, c : d}") == [
+        MappingExpr([MappingField(AtomExpr("a"), AtomExpr("b")), MappingField(AtomExpr("c"), AtomExpr("d"))])
     ]
-    assert parse("a (b c) [d e] {f : g}") == [
-        SAtom("a"),
-        SGroup([SAtom("b"), SAtom("c")]),
-        SSeq([SAtom("d"), SAtom("e")]),
-        SMap([SMapField(SAtom("f"), SAtom("g"))]),
+    assert parse_expr("a (b c) [d e] {f : g}") == [
+        AtomExpr("a"),
+        GroupExpr([AtomExpr("b"), AtomExpr("c")]),
+        SequenceExpr([AtomExpr("d"), AtomExpr("e")]),
+        MappingExpr([MappingField(AtomExpr("f"), AtomExpr("g"))]),
     ]
-    assert parse("{}") == [SMap([])]
+    assert parse_expr("{}") == [MappingExpr([])]
 
-    assert parse('a "b c"') == [SAtom("a"), SStr("b c")]
-    assert parse('a "b c" d') == [SAtom("a"), SStr("b c"), SAtom("d")]
-    assert parse('a "b\\"c" d') == [SAtom("a"), SStr('b"c'), SAtom("d")]
+    assert parse_expr('a "b c"') == [AtomExpr("a"), StringExpr("b c")]
+    assert parse_expr('a "b c" d') == [AtomExpr("a"), StringExpr("b c"), AtomExpr("d")]
+    assert parse_expr('a "b\\"c" d') == [AtomExpr("a"), StringExpr('b"c'), AtomExpr("d")]
 
-    assert parse('a #"b" c') == [SAtom("a"), SStr("b"), SAtom("c")]
-    assert parse('a #"" c') == [SAtom("a"), SStr(""), SAtom("c")]
-    assert parse('a #x"b""x c') == [SAtom("a"), SStr('b"'), SAtom("c")]
-    assert parse('a #tag"b""tag d') == [SAtom("a"), SStr('b"'), SAtom("d")]
+    assert parse_expr('a #"b" c') == [AtomExpr("a"), StringExpr("b"), AtomExpr("c")]
+    assert parse_expr('a #"" c') == [AtomExpr("a"), StringExpr(""), AtomExpr("c")]
+    assert parse_expr('a #x"b""x c') == [AtomExpr("a"), StringExpr('b"'), AtomExpr("c")]
+    assert parse_expr('a #tag"b""tag d') == [AtomExpr("a"), StringExpr('b"'), AtomExpr("d")]
 
     # Test nested structures
-    assert parse("(a (b c) [d e])") == [
-        SGroup(
+    assert parse_expr("(a (b c) [d e])") == [
+        GroupExpr(
             [
-                SAtom("a"),
-                SGroup([SAtom("b"), SAtom("c")]),
-                SSeq([SAtom("d"), SAtom("e")]),
+                AtomExpr("a"),
+                GroupExpr([AtomExpr("b"), AtomExpr("c")]),
+                SequenceExpr([AtomExpr("d"), AtomExpr("e")]),
             ]
         )
     ]
 
     # Test more complex maps
-    assert parse("{ a : 1, b : { c : 2, d : [3, 4] } }") == [
-        SMap(
+    assert parse_expr("{ a : 1, b : { c : 2, d : [3, 4] } }") == [
+        MappingExpr(
             [
-                SMapField(SAtom("a"), SAtom("1")),
-                SMapField(
-                    SAtom("b"),
-                    SMap(
+                MappingField(AtomExpr("a"), AtomExpr("1")),
+                MappingField(
+                    AtomExpr("b"),
+                    MappingExpr(
                         [
-                            SMapField(SAtom("c"), SAtom("2")),
-                            SMapField(SAtom("d"), SSeq([SAtom("3"), SAtom("4")])),
+                            MappingField(AtomExpr("c"), AtomExpr("2")),
+                            MappingField(AtomExpr("d"), SequenceExpr([AtomExpr("3"), AtomExpr("4")])),
                         ]
                     ),
                 ),
@@ -103,36 +104,36 @@ def test_parser():
     ]
 
     # Test string escapes
-    assert parse(r'"a\nb\tc\rd\0e\\f\"g"') == [SStr('a\nb\tc\rd\0e\\f"g')]
+    assert parse_expr(r'"a\nb\tc\rd\0e\\f\"g"') == [StringExpr('a\nb\tc\rd\0e\\f"g')]
 
     # Test raw strings with various delimiters
-    assert parse('#delim"a"b"c"delim') == [SStr('a"b"c')]
+    assert parse_expr('#delim"a"b"c"delim') == [StringExpr('a"b"c')]
 
     # Test comments
-    assert parse("a ; this is a comment") == [SAtom("a")]
-    assert parse("a ; this is a comment\nb") == [SAtom("a"), SAtom("b")]
-    assert parse("a (b ; inline comment\n c) d") == [
-        SAtom("a"),
-        SGroup([SAtom("b"), SAtom("c")]),
-        SAtom("d"),
+    assert parse_expr("a ; this is a comment") == [AtomExpr("a")]
+    assert parse_expr("a ; this is a comment\nb") == [AtomExpr("a"), AtomExpr("b")]
+    assert parse_expr("a (b ; inline comment\n c) d") == [
+        AtomExpr("a"),
+        GroupExpr([AtomExpr("b"), AtomExpr("c")]),
+        AtomExpr("d"),
     ]
 
     # Test empty structures
-    assert parse("() [] {}") == [SGroup([]), SSeq([]), SMap([])]
+    assert parse_expr("() [] {}") == [GroupExpr([]), SequenceExpr([]), MappingExpr([])]
 
     # Test atoms with special characters
-    assert parse("a-b c_d e!f?") == [SAtom("a-b"), SAtom("c_d"), SAtom("e!f?")]
+    assert parse_expr("a-b c_d e!f?") == [AtomExpr("a-b"), AtomExpr("c_d"), AtomExpr("e!f?")]
 
     # Test multiple top-level expressions
-    assert parse("a (b c) [d e] {f : g}") == [
-        SAtom("a"),
-        SGroup([SAtom("b"), SAtom("c")]),
-        SSeq([SAtom("d"), SAtom("e")]),
-        SMap([SMapField(SAtom("f"), SAtom("g"))]),
+    assert parse_expr("a (b c) [d e] {f : g}") == [
+        AtomExpr("a"),
+        GroupExpr([AtomExpr("b"), AtomExpr("c")]),
+        SequenceExpr([AtomExpr("d"), AtomExpr("e")]),
+        MappingExpr([MappingField(AtomExpr("f"), AtomExpr("g"))]),
     ]
 
     assert (
-        parse(
+        parse_expr(
             """
     (gradle "kotlin-ref-walker"
         :version "1.0.0"
@@ -143,16 +144,16 @@ def test_parser():
                 """
         )
         == [
-            SGroup(
+            GroupExpr(
                 values=[
-                    SAtom(value="gradle"),
-                    SStr(value="kotlin-ref-walker"),
-                    SAtom(value=":version"),
-                    SStr(value="1.0.0"),
-                    SAtom(value=":features"),
-                    SSeq(values=[SGroup(values=[SAtom(value="jvm-kotlin-library")])]),
-                    SAtom(value=":dependencies"),
-                    SSeq(values=[]),
+                    AtomExpr(value="gradle"),
+                    StringExpr(value="kotlin-ref-walker"),
+                    AtomExpr(value=":version"),
+                    StringExpr(value="1.0.0"),
+                    AtomExpr(value=":features"),
+                    SequenceExpr(values=[GroupExpr(values=[AtomExpr(value="jvm-kotlin-library")])]),
+                    AtomExpr(value=":dependencies"),
+                    SequenceExpr(values=[]),
                 ]
             )
         ]
@@ -263,9 +264,9 @@ def test_parser():
 
 
 def test_parser_errors():
-    with pytest.raises(MuParserError):
-        parse("(a b")
-    with pytest.raises(MuParserError):
-        parse("[a b")
-    with pytest.raises(MuParserError):
-        parse("{a: 1")
+    with pytest.raises(ParseError):
+        parse_expr("(a b")
+    with pytest.raises(ParseError):
+        parse_expr("[a b")
+    with pytest.raises(ParseError):
+        parse_expr("{a: 1")

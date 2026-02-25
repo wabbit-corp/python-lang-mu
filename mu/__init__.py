@@ -1,61 +1,63 @@
+"""Stable public API exports for the `mu` package."""
+
 from __future__ import annotations
 
 from importlib.metadata import PackageNotFoundError, version
 
-from mu.parser import MuParserError as MuParserError
-from mu.parser import sexpr as sexpr
+from mu.parser import ParseError as ParseError
+from mu.parser import parse as parse
 from mu.quoted import Quoted as Quoted
-from mu.typed import MuDecodeContext as MuDecodeContext
-from mu.typed import MuDecodeError as MuDecodeError
-from mu.typed import MuDeserialize as MuDeserialize
-from mu.typed import MuDeserializerFn as MuDeserializerFn
-from mu.typed import MuDeserializerRegistry as MuDeserializerRegistry
-from mu.typed import MuName as MuName
-from mu.typed import MuOneOrMore as MuOneOrMore
-from mu.typed import MuOptional as MuOptional
-from mu.typed import MuZeroOrMore as MuZeroOrMore
-from mu.typed import decode_expr as decode_expr
-from mu.typed import mu_tag as mu_tag
-from mu.typed import parse_many_typed as parse_many_typed
-from mu.typed import parse_one_typed as parse_one_typed
-from mu.types import SAtom as SAtom
-from mu.types import SDoc as SDoc
-from mu.types import SExpr as SExpr
-from mu.types import SGroup as SGroup
-from mu.types import SMap as SMap
-from mu.types import SMapField as SMapField
-from mu.types import SSeq as SSeq
-from mu.types import SStr as SStr
+from mu.typed import DecodeContext as DecodeContext
+from mu.typed import DecodeError as DecodeError
+from mu.typed import DecoderFn as DecoderFn
+from mu.typed import DecoderRegistry as DecoderRegistry
+from mu.typed import DecodeWith as DecodeWith
+from mu.typed import FieldName as FieldName
+from mu.typed import OneOrMore as OneOrMore
+from mu.typed import OptionalArg as OptionalArg
+from mu.typed import ZeroOrMore as ZeroOrMore
+from mu.typed import decode as decode
+from mu.typed import parse_many as parse_many
+from mu.typed import parse_one as parse_one
+from mu.typed import tag as tag
+from mu.types import AtomExpr as AtomExpr
+from mu.types import Document as Document
+from mu.types import Expr as Expr
+from mu.types import GroupExpr as GroupExpr
+from mu.types import MappingExpr as MappingExpr
+from mu.types import MappingField as MappingField
+from mu.types import SequenceExpr as SequenceExpr
+from mu.types import StringExpr as StringExpr
 
 try:
-    __version__ = version("mu")
+    __version__ = version("lang-mu")
 except PackageNotFoundError:  # pragma: no cover - local editable installs
     __version__ = "0.2.0"
 
 __all__ = [
-    "MuParserError",
+    "ParseError",
     "Quoted",
-    "MuDecodeContext",
-    "MuDecodeError",
-    "MuDeserialize",
-    "MuDeserializerFn",
-    "MuDeserializerRegistry",
-    "MuName",
-    "MuOneOrMore",
-    "MuOptional",
-    "MuZeroOrMore",
-    "SAtom",
-    "SDoc",
-    "SExpr",
-    "SGroup",
-    "SMap",
-    "SMapField",
-    "SSeq",
-    "SStr",
+    "DecodeContext",
+    "DecodeError",
+    "DecodeWith",
+    "DecoderFn",
+    "DecoderRegistry",
+    "FieldName",
+    "OneOrMore",
+    "OptionalArg",
+    "ZeroOrMore",
+    "AtomExpr",
+    "Document",
+    "Expr",
+    "GroupExpr",
+    "MappingExpr",
+    "MappingField",
+    "SequenceExpr",
+    "StringExpr",
     "__version__",
-    "decode_expr",
-    "mu_tag",
-    "parse_many_typed",
-    "parse_one_typed",
-    "sexpr",
+    "decode",
+    "tag",
+    "parse_many",
+    "parse_one",
+    "parse",
 ]

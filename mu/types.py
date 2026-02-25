@@ -6,45 +6,50 @@ from mu.input import Span
 # from fractions import Fraction
 
 
-class SExpr:
-    Atom: type["SAtom"] = None  # type: ignore
-    Str: type["SStr"] = None  # type: ignore
+class Expr:
+    """Base class for all Mu expression AST nodes."""
+
+    Atom: type["AtomExpr"] = None  # type: ignore
+    Str: type["StringExpr"] = None  # type: ignore
     Real: type["SReal"] = None  # type: ignore
     Int: type["SInt"] = None  # type: ignore
     Rational: type["SRational"] = None  # type: ignore
 
-    Group: type["SGroup"] = None  # type: ignore
-    Seq: type["SSeq"] = None  # type: ignore
-    Map: type["SMap"] = None  # type: ignore
+    Group: type["GroupExpr"] = None  # type: ignore
+    Seq: type["SequenceExpr"] = None  # type: ignore
+    Map: type["MappingExpr"] = None  # type: ignore
 
-    def drop_spans(self) -> "SExpr":
+    def drop_spans(self) -> "Expr":
+        """Return a structurally equivalent node with token/space spans removed."""
         match self:
-            case SExpr.Atom(value=value):
-                return SExpr.Atom(value)
-            case SExpr.Str(value=value):
-                return SExpr.Str(value)
-            case SExpr.Real(value=value):
-                return SExpr.Real(value)
-            case SExpr.Int(value=value):
-                return SExpr.Int(value)
-            case SExpr.Rational(value=value):
-                return SExpr.Rational(value)
-
-            case SExpr.Group(values=values):
-                return SExpr.Group([v.drop_spans() for v in values])
-            case SExpr.Seq(values=values):
-                return SExpr.Seq([v.drop_spans() for v in values])
-            case SExpr.Map(values=values):
-                return SExpr.Map(
+            case AtomExpr(value=value):
+                return AtomExpr(value)
+            case StringExpr(value=value):
+                return StringExpr(value)
+            case SReal(value=value):
+                return SReal(value)
+            case SInt(value=value):
+                return SInt(value)
+            case SRational(value=value):
+                return SRational(value)
+            case GroupExpr(values=values):
+                return GroupExpr([v.drop_spans() for v in values])
+            case SequenceExpr(values=values):
+                return SequenceExpr([v.drop_spans() for v in values])
+            case MappingExpr(values=values):
+                return MappingExpr(
                     [
-                        SMapField(field.key.drop_spans(), field.value.drop_spans())
+                        MappingField(field.key.drop_spans(), field.value.drop_spans())
                         for field in values
                     ]
                 )
+        raise TypeError(f"Unsupported expression type: {type(self).__name__}")
 
 
 @dataclass
 class TokenSpans:
+    """Captured token and trailing space spans for source-preserving parsing."""
+
     token: Span | None = None
     space: Span | None = None
 
@@ -59,7 +64,9 @@ class TokenSpans:
 
 # a | ab | define-test | 123 | 123.456 | 123. | .456
 @dataclass
-class SAtom(SExpr):
+class AtomExpr(Expr):
+    """Atom expression (identifier-like token) node."""
+
     value: str
     span: TokenSpans | None = None
 
@@ -72,7 +79,9 @@ class SAtom(SExpr):
 # "a" | "ab" | "define-test" | "123" | "123.456" | "123." | ".456"
 # #"\d+" | #"\d+.\*" ... (raw)
 @dataclass
-class SStr(SExpr):
+class StringExpr(Expr):
+    """String expression node (normal or raw Mu string literal)."""
+
     value: str
     span: TokenSpans | None = None
 
@@ -84,7 +93,9 @@ class SStr(SExpr):
 
 # 123.456 | 123. | .456 | 123e4 | 123.456e4 | 123.e4 | .456e4
 @dataclass
-class SReal(SExpr):
+class SReal(Expr):
+    """Real-number token node (currently stored as source text)."""
+
     value: str
     span: TokenSpans | None = None
 
@@ -96,7 +107,9 @@ class SReal(SExpr):
 
 # 123 | 0x123 | 0b101 | 0o123
 @dataclass
-class SInt(SExpr):
+class SInt(Expr):
+    """Integer token node."""
+
     value: int
     span: TokenSpans | None = None
 
@@ -108,7 +121,9 @@ class SInt(SExpr):
 
 # 123/456
 @dataclass
-class SRational(SExpr):
+class SRational(Expr):
+    """Rational token node represented as `(numerator, denominator)`."""
+
     value: tuple[int, int]
     span: TokenSpans | None = None
 
@@ -120,8 +135,10 @@ class SRational(SExpr):
 
 # (a b c)
 @dataclass
-class SGroup(SExpr):
-    values: list[SExpr]
+class GroupExpr(Expr):
+    """Parenthesized expression group node."""
+
+    values: list[Expr]
 
     open_bracket: TokenSpans | None = None
     separators: list[TokenSpans] | None = None
@@ -144,8 +161,10 @@ class SGroup(SExpr):
 
 # [a b c] | [a, b, c] | []
 @dataclass
-class SSeq(SExpr):
-    values: list[SExpr]
+class SequenceExpr(Expr):
+    """Bracketed sequence node."""
+
+    values: list[Expr]
 
     open_bracket: TokenSpans | None = None
     separators: list[TokenSpans] | None = None
@@ -167,9 +186,11 @@ class SSeq(SExpr):
 
 
 @dataclass
-class SMapField:
-    key: SExpr
-    value: SExpr
+class MappingField:
+    """Single key/value field inside a mapping expression."""
+
+    key: Expr
+    value: Expr
     separator: TokenSpans | None = None
 
     def __str__(self) -> str:
@@ -183,8 +204,10 @@ class SMapField:
 
 # { a : b, c : d }
 @dataclass
-class SMap(SExpr):
-    values: list[SMapField]
+class MappingExpr(Expr):
+    """Brace-delimited mapping node."""
+
+    values: list[MappingField]
 
     open_bracket: TokenSpans | None = None
     separators: list[TokenSpans] | None = None
@@ -206,8 +229,10 @@ class SMap(SExpr):
 
 
 @dataclass
-class SDoc:
-    exprs: list[SExpr]
+class Document:
+    """Top-level Mu parse result containing one or more expressions."""
+
+    exprs: list[Expr]
     leading_space: Span | None = None
 
     def __str__(self) -> str:
@@ -217,18 +242,19 @@ class SDoc:
         result += "".join(str(expr) for expr in self.exprs)
         return result
 
-    def drop_spans(self) -> "SDoc":
-        return SDoc(
+    def drop_spans(self) -> "Document":
+        """Return an equivalent document with spans removed from all expressions."""
+        return Document(
             [expr.drop_spans() for expr in self.exprs], leading_space=self.leading_space
         )
 
 
-SExpr.Atom = SAtom
-SExpr.Str = SStr
-SExpr.Real = SReal
-SExpr.Int = SInt
-SExpr.Rational = SRational
+Expr.Atom = AtomExpr
+Expr.Str = StringExpr
+Expr.Real = SReal
+Expr.Int = SInt
+Expr.Rational = SRational
 
-SExpr.Group = SGroup
-SExpr.Seq = SSeq
-SExpr.Map = SMap
+Expr.Group = GroupExpr
+Expr.Seq = SequenceExpr
+Expr.Map = MappingExpr

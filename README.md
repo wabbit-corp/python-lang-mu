@@ -1,6 +1,6 @@
-# mu
+# lang-mu
 
-`mu` is a Python implementation of the Mu configuration language.
+`lang-mu` is a Python distribution for the `mu` Python package, an implementation of the Mu configuration language.
 It provides:
 
 - A parser that preserves Mu syntax as an AST.
@@ -15,17 +15,32 @@ This package gives you a strict, testable way to parse and decode those configs 
 ## Installation
 
 ```bash
-pip install mu
+pip install lang-mu
 ```
 
 ## Quickstart: Parsing
 
 ```python
-from mu import SDoc, sexpr
+from mu import AtomExpr, Document, GroupExpr, parse
 
-doc = sexpr('(app-jvm "demo" :main "demo.Main")')
-assert isinstance(doc, SDoc)
-assert len(doc.exprs) == 1
+source = """
+; application plus shared includes
+(app-jvm "billing-api"
+  :main "billing.Main"
+  :ports [8080 8443]
+  :env {profile: prod, region: us-east-1}
+)
+(include "shared/logging.mu")
+"""
+
+doc = parse(source)
+assert isinstance(doc, Document)
+assert len(doc.exprs) == 2
+
+app = doc.exprs[0]
+assert isinstance(app, GroupExpr)
+assert isinstance(app.values[0], AtomExpr)
+assert app.values[0].value == "app-jvm"
 ```
 
 ## Quickstart: Typed decoding
@@ -34,22 +49,22 @@ assert len(doc.exprs) == 1
 from dataclasses import dataclass
 from typing import Annotated
 
-from mu import MuZeroOrMore, parse_one_typed
+from mu import ZeroOrMore, parse_one
 
 
 @dataclass
 class Demo:
     name: str
-    aliases: Annotated[list[str], MuZeroOrMore]
+    aliases: Annotated[list[str], ZeroOrMore]
 
 
-cfg = parse_one_typed('(demo :name "x" :aliases "a" "b")', Demo)
+cfg = parse_one('(demo :name "x" :aliases "a" "b")', Demo)
 assert cfg == Demo(name="x", aliases=["a", "b"])
 ```
 
 ## Error handling
 
-Typed decoding raises `MuDecodeError` with structured context:
+Typed decoding raises `DecodeError` with structured context:
 
 - `path`: decode path (for example `$.field[0]`)
 - `expected`: human-readable expected target/type
@@ -59,7 +74,7 @@ Typed decoding raises `MuDecodeError` with structured context:
 
 ```python
 from dataclasses import dataclass
-from mu import MuDecodeError, parse_one_typed
+from mu import DecodeError, parse_one
 
 
 @dataclass
@@ -68,8 +83,8 @@ class Counter:
 
 
 try:
-    parse_one_typed('(counter :value "not-an-int")', Counter)
-except MuDecodeError as e:
+    parse_one('(counter :value "not-an-int")', Counter)
+except DecodeError as e:
     print(e.path, e.expected, e.got)
 ```
 
@@ -77,20 +92,15 @@ except MuDecodeError as e:
 
 ### Stable API (`from mu import ...`)
 
-- Parser: `sexpr`, `MuParserError`
-- AST: `SExpr`, `SDoc`, `SAtom`, `SStr`, `SGroup`, `SSeq`, `SMap`, `SMapField`
-- Typed decoding:
-  - `parse_one_typed`, `parse_many_typed`, `decode_expr`
-  - `MuDecodeError`, `MuDecodeContext`
-  - `MuDeserializerRegistry`, `MuDeserializerFn`, `MuDeserialize`
-  - `MuName`, `MuOptional`, `MuZeroOrMore`, `MuOneOrMore`, `mu_tag`
-  - `Quoted`
+- Stable symbol reference is generated from code: `docs/api-stable.md`.
+- Main entry points:
+  - `parse`, `ParseError`
+  - `parse_one`, `parse_many`, `decode`
+  - `DecodeError`, `DecoderRegistry`, `Quoted`
 
 ### Experimental API (`from mu.exec import ...`)
 
-- `ExecutionContext`
-- `eval_sexpr`
-- `MuNameError`
+- Experimental symbol reference is generated from code: `docs/api-experimental.md`.
 
 The experimental runtime API is available but not considered stable yet.
 Non-exported internals (for example `mu.arg_match` and parser private helpers) are unsupported and may change without notice.
@@ -107,6 +117,11 @@ See `LICENSE.md` for full text.
 ## Development and release checks
 
 ```bash
+python scripts/generate_api_docs.py --check
+python scripts/check_docs_links.py
+pytest -q tests/test_docs_snippets.py
+codespell README.md docs CHANGELOG.md CONTRIBUTING.md --ignore-words=.codespell-ignore-words.txt
+mkdocs build --strict
 pytest -q
 ruff check .
 python -m build --sdist --wheel

@@ -1,12 +1,12 @@
 import pytest
 
-from mu.exec import ExecutionContext, MuNameError, Quoted, eval_sexpr
-from mu.types import SAtom, SExpr, SGroup, SSeq, SStr
+from mu.exec import EvalContext, EvalNameError, Quoted, eval_expr
+from mu.types import AtomExpr, Expr, GroupExpr, SequenceExpr, StringExpr
 
 
 @pytest.fixture
 def ctx():
-    return ExecutionContext()
+    return EvalContext()
 
 
 # def test_register_and_call(ctx):
@@ -14,23 +14,23 @@ def ctx():
 #     def add(a: int, b: int) -> int:
 #         return a + b
 
-#     expr = SGroup([
-#         SAtom("add"),
-#         SAtom("3"),
-#         SAtom("4")
+#     expr = GroupExpr([
+#         AtomExpr("add"),
+#         AtomExpr("3"),
+#         AtomExpr("4")
 #     ])
-#     result = eval_sexpr(ctx, expr)
+#     result = eval_expr(ctx, expr)
 #     assert result == 7
 
 
 def test_name_not_found(ctx):
-    with pytest.raises(MuNameError):
-        eval_sexpr(ctx, SAtom("not_found"))
+    with pytest.raises(EvalNameError):
+        eval_expr(ctx, AtomExpr("not_found"))
 
 
 def test_python_attribute_lookup(ctx):
-    sin_expr = SAtom("py.math/sin")
-    sin_fn = eval_sexpr(ctx, sin_expr)
+    sin_expr = AtomExpr("py.math/sin")
+    sin_fn = eval_expr(ctx, sin_expr)
     assert callable(sin_fn.fn)
     assert sin_fn.fn.__name__ == "sin"
     import math
@@ -40,7 +40,7 @@ def test_python_attribute_lookup(ctx):
 
 # def test_empty_group(ctx):
 #     with pytest.raises(MuTypeError):
-#         eval_sexpr(ctx, SGroup([]))
+#         eval_expr(ctx, GroupExpr([]))
 
 
 def test_string_interpolation(ctx):
@@ -48,8 +48,8 @@ def test_string_interpolation(ctx):
     def get_user() -> str:
         return "World"
 
-    s = SStr("Hello, ${(get_user)}!")
-    result = eval_sexpr(ctx, s)
+    s = StringExpr("Hello, ${(get_user)}!")
+    result = eval_expr(ctx, s)
     assert result == "Hello, World!"
 
 
@@ -63,9 +63,9 @@ def test_function_signatures(ctx):
         return f"Hello, {name}!"
 
     @ctx.register
-    def quotes(name: Quoted[SExpr], data: Quoted[SAtom]) -> str:
-        assert name.value == SStr("Alice")
-        assert data.value == SAtom("data")
+    def quotes(name: Quoted[Expr], data: Quoted[AtomExpr]) -> str:
+        assert name.value == StringExpr("Alice")
+        assert data.value == AtomExpr("data")
         return f"Hello, {name}!"
 
     # Print function signatures
@@ -73,7 +73,7 @@ def test_function_signatures(ctx):
     assert str(ctx.get_function_signature("greet")) == "(name: str) -> str"
     assert (
         str(ctx.get_function_signature("quotes"))
-        == "(name: Quoted[SExpr], data: Quoted[SAtom]) -> str"
+        == "(name: Quoted[Expr], data: Quoted[AtomExpr]) -> str"
     )
 
     @ctx.register(name="app-jvm")
@@ -89,15 +89,15 @@ def test_function_signatures(ctx):
 
 def test_quoted(ctx):
     @ctx.register
-    def quotes(name: Quoted[SExpr], data: Quoted[SAtom]) -> str:
-        assert name.value == SStr("Alice")
-        assert data.value == SAtom("data")
+    def quotes(name: Quoted[Expr], data: Quoted[AtomExpr]) -> str:
+        assert name.value == StringExpr("Alice")
+        assert data.value == AtomExpr("data")
         return f"Hello, {name}!"
 
-    eval_sexpr(ctx, SGroup([SAtom("quotes"), SStr("Alice"), SAtom("data")]))
+    eval_expr(ctx, GroupExpr([AtomExpr("quotes"), StringExpr("Alice"), AtomExpr("data")]))
 
     with pytest.raises(TypeError):
-        eval_sexpr(ctx, SGroup([SAtom("quotes"), SStr("Alice"), SStr("data")]))
+        eval_expr(ctx, GroupExpr([AtomExpr("quotes"), StringExpr("Alice"), StringExpr("data")]))
 
 
 def test_register_without_decorator(ctx):
@@ -115,24 +115,24 @@ def test_complex_call(ctx):
         return f"Creating JVM app: {name} with main class {main} and dependencies: {dependencies}"
 
     # Test the function
-    test_input = SGroup(
+    test_input = GroupExpr(
         [
-            SAtom("app-jvm"),
-            SStr("app-bitebyte"),
-            SAtom(":main"),
-            SStr("datatron.MainKt"),
-            SAtom(":dependencies"),
-            SSeq(
+            AtomExpr("app-jvm"),
+            StringExpr("app-bitebyte"),
+            AtomExpr(":main"),
+            StringExpr("datatron.MainKt"),
+            AtomExpr(":dependencies"),
+            SequenceExpr(
                 [
-                    SStr(":lib-std-base"),
-                    SStr(":lib-std-logging"),
-                    SStr(":lib-lang-parsing-parsers"),
-                    SStr("kotlinx-cli"),
-                    SStr("sqlite-jdbc"),
+                    StringExpr(":lib-std-base"),
+                    StringExpr(":lib-std-logging"),
+                    StringExpr(":lib-lang-parsing-parsers"),
+                    StringExpr("kotlinx-cli"),
+                    StringExpr("sqlite-jdbc"),
                 ]
             ),
         ]
     )
 
-    result = eval_sexpr(ctx, test_input)
+    result = eval_expr(ctx, test_input)
     print(result)

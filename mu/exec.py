@@ -1,3 +1,5 @@
+"""Experimental Mu expression evaluation runtime."""
+
 import inspect
 import re
 import typing
@@ -7,12 +9,14 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import Any
 
-from mu.parser import sexpr
+from mu.parser import parse
 from mu.quoted import Quoted
-from mu.types import SAtom, SDoc, SExpr, SGroup, SMap, SSeq, SStr
+from mu.types import AtomExpr, Document, Expr, GroupExpr, MappingExpr, SequenceExpr, StringExpr
 
 
-class MuNameError(NameError):
+class EvalNameError(NameError):
+    """Raised when evaluating an unbound symbol name."""
+
     pass
 
 
@@ -40,7 +44,7 @@ class FunctionSignature:
 
 class CallableObject(ABC):
     @abstractmethod
-    def __call__(self, ctx: "ExecutionContext", *args: Any, **kwargs: Any) -> Any:
+    def __call__(self, ctx: "EvalContext", *args: Any, **kwargs: Any) -> Any:
         pass
 
     @abstractmethod
@@ -53,21 +57,21 @@ class NativeFunction(CallableObject):
     fn: Callable
     signature: FunctionSignature
 
-    def __call__(self, ctx: "ExecutionContext", *args: Any, **kwargs: Any) -> Any:
+    def __call__(self, ctx: "EvalContext", *args: Any, **kwargs: Any) -> Any:
         bound_args = self.signature.arg_names[: len(args)]
 
         arg_types = self.signature.arg_types
 
         def eval_arg_maybe(ctx, arg, type):
             if hasattr(type, "__origin__") and type.__origin__ == Quoted:
-                assert isinstance(arg, SExpr), f"Expected SExpr, got {type(arg)}"
+                assert isinstance(arg, Expr), f"Expected Expr, got {type(arg)}"
                 assert issubclass(
-                    type.__args__[0], SExpr
-                ), f"Expected SExpr subtype, got {type.__args__[0]}"
+                    type.__args__[0], Expr
+                ), f"Expected Expr subtype, got {type.__args__[0]}"
                 if not isinstance(arg, type.__args__[0]):
                     raise TypeError(f"Expected {type.__args__[0]}, got {arg}")
                 return Quoted(arg)
-            return eval_sexpr(ctx, arg)
+            return eval_expr(ctx, arg)
 
         # Evaluate all arguments
         evaluated_args = [
@@ -87,7 +91,9 @@ class NativeFunction(CallableObject):
 
 
 @dataclass
-class ExecutionContext:
+class EvalContext:
+    """Evaluation context holding callable/value bindings."""
+
     env: dict[str, Any] = field(default_factory=dict)
 
     def register(
@@ -123,20 +129,24 @@ class ExecutionContext:
         return str(self.env[func_name].get_signature())
 
 
-def eval_sexpr(
-    ctx: ExecutionContext,
-    e: SDoc | SExpr | list[SExpr],
+def eval_expr(
+    ctx: EvalContext,
+    e: Document | Expr | list[Expr],
     ignore_toplevel_exceptions: bool = False,
 ) -> Any:
-    if isinstance(e, SDoc):
-        return [eval_sexpr(ctx, x) for x in e.exprs]
-    if isinstance(e, list):
-        return [eval_sexpr(ctx, x) for x in e]
+    """Evaluate Mu expressions using a provided `EvalContext`.
 
-    assert isinstance(e, SExpr), f"Expected SExpr, got {type(e)}"
+    This runtime is experimental and not covered by stable API guarantees.
+    """
+    if isinstance(e, Document):
+        return [eval_expr(ctx, x) for x in e.exprs]
+    if isinstance(e, list):
+        return [eval_expr(ctx, x) for x in e]
+
+    assert isinstance(e, Expr), f"Expected Expr, got {type(e)}"
 
     match e:
-        case SAtom(a):
+        case AtomExpr(a):
             if a.startswith("py."):
                 a = a[3:]
                 module, attr = a.rsplit("/", 1)
@@ -157,11 +167,11 @@ def eval_sexpr(
                 return result
 
             if a not in ctx.env:
-                raise MuNameError(f"Name '{a}' is not defined")
+                raise EvalNameError(f"Name '{a}' is not defined")
 
             return ctx.env[a]
 
-        case SStr(s):
+        case StringExpr(s):
             if "$" in s:
                 result = ""
                 last_end = 0
@@ -170,7 +180,7 @@ def eval_sexpr(
                     if m.group() == "$$":
                         result += "$"
                     else:
-                        result += str(eval_sexpr(ctx, sexpr(m.group(1)).exprs)[-1])
+                        result += str(eval_expr(ctx, parse(m.group(1)).exprs)[-1])
                     last_end = m.end()
 
                 result += s[last_end:]
@@ -179,25 +189,25 @@ def eval_sexpr(
 
             return s
 
-        case SSeq(s):
-            return [eval_sexpr(ctx, e) for e in s]
+        case SequenceExpr(s):
+            return [eval_expr(ctx, e) for e in s]
 
-        case SMap(s):
+        case MappingExpr(s):
             result = OrderedDict()
             for field in s:
-                result[eval_sexpr(ctx, field.key)] = eval_sexpr(ctx, field.value)
+                result[eval_expr(ctx, field.key)] = eval_expr(ctx, field.value)
             return result
 
-        case SGroup(g):
+        case GroupExpr(g):
             assert len(g) > 0, "Empty group"
 
             try:
-                fn = eval_sexpr(ctx, g[0])
+                fn = eval_expr(ctx, g[0])
                 tail = g[1:]
                 args = []
                 kwargs = {}
                 for index, arg in enumerate(tail):
-                    if isinstance(arg, SAtom) and arg.value.startswith(":"):
+                    if isinstance(arg, AtomExpr) and arg.value.startswith(":"):
                         key = arg.value[1:]
                         assert index + 1 < len(
                             g
@@ -210,18 +220,18 @@ def eval_sexpr(
                 if isinstance(fn, CallableObject):
                     return fn(ctx, *args, **kwargs)
                 elif callable(fn):
-                    evaluated_args = [eval_sexpr(ctx, arg) for arg in args]
+                    evaluated_args = [eval_expr(ctx, arg) for arg in args]
                     evaluated_kwargs = {
-                        k: eval_sexpr(ctx, v) for k, v in kwargs.items()
+                        k: eval_expr(ctx, v) for k, v in kwargs.items()
                     }
                     return fn(*evaluated_args, **evaluated_kwargs)
                 else:
                     raise TypeError(f"Cannot call {fn}")
-            except Exception as e:
+            except Exception as ex:
                 if ignore_toplevel_exceptions:
                     import traceback
 
                     traceback.print_exc()
-                    return e
+                    return ex
                 else:
-                    raise e
+                    raise

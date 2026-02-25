@@ -1,14 +1,27 @@
+"""Parser for Mu source text into AST nodes."""
 
 from mu.input import Span, _Input, debug
-from mu.types import SAtom, SDoc, SExpr, SGroup, SMap, SMapField, SSeq, SStr, TokenSpans
+from mu.types import (
+    AtomExpr,
+    Document,
+    Expr,
+    GroupExpr,
+    MappingExpr,
+    MappingField,
+    SequenceExpr,
+    StringExpr,
+    TokenSpans,
+)
 
 
-class MuParserError(Exception):
+class ParseError(Exception):
+    """Raised when Mu source cannot be parsed into a valid AST."""
+
     pass
 
 
 @debug
-def _parse_one_sexpr(input: _Input) -> SExpr:
+def _parse_one_sexpr(input: _Input) -> Expr:
     _skip_whitespace(input)
     c = input.current
     if c == "(":
@@ -43,12 +56,12 @@ def _skip_whitespace(input: _Input) -> Span:
 
 
 @debug
-def _parse_group(input: _Input) -> SGroup:
+def _parse_group(input: _Input) -> GroupExpr:
     assert input.current == "("
     input.next()
     open_bracket = TokenSpans(token=input.capture(), space=_skip_whitespace(input))
 
-    values: list[SExpr] = []
+    values: list[Expr] = []
     separators: list[TokenSpans] = []
     while input.current != ")":
         if input.current == _Input.EOS:
@@ -64,13 +77,13 @@ def _parse_group(input: _Input) -> SGroup:
         )
 
     if input.current == _Input.EOS:
-        raise MuParserError("Unexpected end of input")
+        raise ParseError("Unexpected end of input")
 
     assert input.current == ")"
     input.next()
     close_bracket = TokenSpans(token=input.capture(), space=_skip_whitespace(input))
 
-    return SGroup(
+    return GroupExpr(
         values=values,
         open_bracket=open_bracket,
         separators=separators,
@@ -79,16 +92,16 @@ def _parse_group(input: _Input) -> SGroup:
 
 
 @debug
-def _parse_list(input: _Input) -> SSeq:
+def _parse_list(input: _Input) -> SequenceExpr:
     assert input.current == "["
     input.next()
     open_bracket = TokenSpans(token=input.capture(), space=_skip_whitespace(input))
 
-    values: list[SExpr] = []
+    values: list[Expr] = []
     separators: list[TokenSpans] = []
     while input.current != "]":
         if input.current == _Input.EOS:
-            raise MuParserError("Unexpected end of input")
+            raise ParseError("Unexpected end of input")
 
         values.append(_parse_one_sexpr(input))
 
@@ -103,7 +116,7 @@ def _parse_list(input: _Input) -> SSeq:
     input.next()
     close_bracket = TokenSpans(token=input.capture(), space=_skip_whitespace(input))
 
-    return SSeq(
+    return SequenceExpr(
         values=values,
         open_bracket=open_bracket,
         separators=separators,
@@ -112,7 +125,7 @@ def _parse_list(input: _Input) -> SSeq:
 
 
 @debug
-def _parse_atom(input: _Input) -> SAtom:
+def _parse_atom(input: _Input) -> AtomExpr:
     assert input.current not in [
         _Input.EOS,
         "(",
@@ -138,18 +151,18 @@ def _parse_atom(input: _Input) -> SAtom:
 
     value_span = TokenSpans(token=input.capture(), space=_skip_whitespace(input))
 
-    return SAtom(value=value, span=value_span)
+    return AtomExpr(value=value, span=value_span)
 
 
 @debug
-def _parse_string(input: _Input) -> SStr:
+def _parse_string(input: _Input) -> StringExpr:
     assert input.current == '"'
     input.next()
 
     value = ""
     while input.current != '"':
         if input.current == _Input.EOS:
-            raise MuParserError("Unexpected end of input")
+            raise ParseError("Unexpected end of input")
         if input.current == "\\":
             input.next()
             match input.current:
@@ -166,7 +179,7 @@ def _parse_string(input: _Input) -> SStr:
                 case '"':
                     value += '"'
                 case _:
-                    raise MuParserError(f"Invalid escape sequence: '\\{input.current}'")
+                    raise ParseError(f"Invalid escape sequence: '\\{input.current}'")
             input.next()
         else:
             value += input.current
@@ -177,11 +190,11 @@ def _parse_string(input: _Input) -> SStr:
 
     value_span = TokenSpans(token=input.capture(), space=_skip_whitespace(input))
 
-    return SStr(value=value, span=value_span)
+    return StringExpr(value=value, span=value_span)
 
 
 @debug
-def _parse_raw_string(input: _Input) -> SStr:
+def _parse_raw_string(input: _Input) -> StringExpr:
     assert input.current == "#"
     input.next()
     tag = ""
@@ -194,7 +207,7 @@ def _parse_raw_string(input: _Input) -> SStr:
 
     while True:
         if input.current == _Input.EOS:
-            raise MuParserError("Unexpected end of input")
+            raise ParseError("Unexpected end of input")
         if input.current != '"':
             value += input.current
             input.next()
@@ -219,38 +232,40 @@ def _parse_raw_string(input: _Input) -> SStr:
 
     value_span = TokenSpans(token=input.capture(), space=_skip_whitespace(input))
 
-    return SStr(value=value, span=value_span)
+    return StringExpr(value=value, span=value_span)
 
 
 @debug
-def _parse_map(input: _Input) -> SMap:
+def _parse_map(input: _Input) -> MappingExpr:
     assert input.current == "{"
     input.next()
     open_bracket = TokenSpans(token=input.capture(), space=_skip_whitespace(input))
 
-    values: list[SMapField] = []
+    values: list[MappingField] = []
     separators: list[TokenSpans] = []
     while input.current != "}":
         if input.current == _Input.EOS:
-            raise MuParserError("Unexpected end of input")
+            raise ParseError("Unexpected end of input")
 
         key = _parse_one_sexpr(input)
 
-        if isinstance(key, SAtom) and key.value.endswith(":"):
+        if isinstance(key, AtomExpr) and key.value.endswith(":"):
             # We are gonna have to do some surgery here
+            if key.span is None or key.span.token is None:
+                raise ParseError("Missing span information for map key")
             key_span = key.span.token
-            new_key = SAtom(key.value[:-1], TokenSpans(key_span[:-1], key_span[-1:-1]))
+            new_key = AtomExpr(key.value[:-1], TokenSpans(key_span[:-1], key_span[-1:-1]))
             colon_span = key_span[-1:]
             colon = TokenSpans(token=colon_span, space=key.span.space)
             key = new_key
         else:
             if input.current != ":":
-                raise MuParserError(f"Expected ':' but got '{input.current}'")
+                raise ParseError(f"Expected ':' but got '{input.current}'")
             input.next()
             colon = TokenSpans(token=input.capture(), space=_skip_whitespace(input))
 
         value = _parse_one_sexpr(input)
-        values.append(SMapField(key, value, colon))
+        values.append(MappingField(key, value, colon))
 
         if input.current == ",":
             input.next()
@@ -263,7 +278,7 @@ def _parse_map(input: _Input) -> SMap:
 
     close_bracket = TokenSpans(token=input.capture(), space=_skip_whitespace(input))
 
-    return SMap(
+    return MappingExpr(
         values=values,
         open_bracket=open_bracket,
         separators=separators,
@@ -272,14 +287,23 @@ def _parse_map(input: _Input) -> SMap:
 
 
 @debug
-def sexpr(input: str, no_spans: bool = True) -> SDoc:
-    top_level: list[SExpr] = []
+def parse(input: str, no_spans: bool = True) -> Document:
+    """Parse Mu source text into a `Document`.
+
+    Args:
+        input: Mu source text.
+        no_spans: When `True`, returned nodes have span metadata removed.
+
+    Returns:
+        Parsed `Document`.
+    """
+    top_level: list[Expr] = []
     input_r = _Input(input)
     leading_space = _skip_whitespace(input_r)
     while input_r.current != _Input.EOS:
         top_level.append(_parse_one_sexpr(input_r))
 
-    result = SDoc(top_level, leading_space=leading_space)
+    result = Document(top_level, leading_space=leading_space)
     if no_spans:
         result = result.drop_spans()
     return result
