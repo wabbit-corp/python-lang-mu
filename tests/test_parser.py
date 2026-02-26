@@ -2,7 +2,7 @@ import pytest
 
 from mu.parser import ParseError
 from mu.parser import parse as parse_mu
-from mu.types import AtomExpr, Expr, GroupExpr, MappingExpr, MappingField, SequenceExpr, StringExpr
+from mu.types import AtomExpr, Expr, GroupExpr, MappingExpr, MappingField, SequenceExpr, SInt, StringExpr
 
 
 def parse_expr(expr: str) -> list[Expr]:
@@ -48,7 +48,7 @@ def test_parser():
         MappingExpr(
             [
                 MappingField(AtomExpr("a"), AtomExpr("b")),
-                MappingField(GroupExpr([AtomExpr("a")]), AtomExpr("1")),
+                MappingField(GroupExpr([AtomExpr("a")]), SInt(1)),
             ]
         )
     ]
@@ -89,13 +89,13 @@ def test_parser():
     assert parse_expr("{ a : 1, b : { c : 2, d : [3, 4] } }") == [
         MappingExpr(
             [
-                MappingField(AtomExpr("a"), AtomExpr("1")),
+                MappingField(AtomExpr("a"), SInt(1)),
                 MappingField(
                     AtomExpr("b"),
                     MappingExpr(
                         [
-                            MappingField(AtomExpr("c"), AtomExpr("2")),
-                            MappingField(AtomExpr("d"), SequenceExpr([AtomExpr("3"), AtomExpr("4")])),
+                            MappingField(AtomExpr("c"), SInt(2)),
+                            MappingField(AtomExpr("d"), SequenceExpr([SInt(3), SInt(4)])),
                         ]
                     ),
                 ),

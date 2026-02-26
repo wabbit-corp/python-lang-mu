@@ -19,7 +19,18 @@ from mu.arg_match import (
 )
 from mu.parser import parse
 from mu.quoted import Quoted
-from mu.types import AtomExpr, Document, Expr, GroupExpr, MappingExpr, SequenceExpr, StringExpr
+from mu.types import (
+    AtomExpr,
+    Document,
+    Expr,
+    GroupExpr,
+    MappingExpr,
+    SequenceExpr,
+    SInt,
+    SRational,
+    SReal,
+    StringExpr,
+)
 
 T = TypeVar("T")
 DecoderFn = Callable[[Expr, "DecodeContext"], Any]
@@ -240,6 +251,8 @@ def _decode_builtin(
         _raise_decode(path, "bool (atom true/false)", expr)
 
     if target is int:
+        if isinstance(expr, SInt):
+            return expr.value
         if not isinstance(expr, AtomExpr):
             _raise_decode(path, "int atom", expr)
         try:
@@ -248,6 +261,12 @@ def _decode_builtin(
             _raise_decode(path, "int atom", expr, cause=cause)
 
     if target is float:
+        if isinstance(expr, SReal):
+            return expr.value
+        if isinstance(expr, SInt):
+            return float(expr.value)
+        if isinstance(expr, SRational):
+            return expr.value[0] / expr.value[1]
         if not isinstance(expr, AtomExpr):
             _raise_decode(path, "float atom", expr)
         try:
@@ -291,6 +310,12 @@ def _decode_builtin(
 
 
 def _decode_any(expr: Expr, registry: DecoderRegistry, path: str) -> Any:
+    if isinstance(expr, SInt):
+        return expr.value
+    if isinstance(expr, SReal):
+        return expr.value
+    if isinstance(expr, SRational):
+        return expr.value
     if isinstance(expr, AtomExpr):
         return expr.value
     if isinstance(expr, StringExpr):
@@ -630,6 +655,12 @@ def _is_none_atom(expr: Expr) -> bool:
 
 
 def _describe_expr(expr: Any) -> str:
+    if isinstance(expr, SInt):
+        return f"int({expr.value!r})"
+    if isinstance(expr, SReal):
+        return f"real({expr.value!r})"
+    if isinstance(expr, SRational):
+        return f"rational({expr.value[0]!r}/{expr.value[1]!r})"
     if isinstance(expr, AtomExpr):
         return f"atom({expr.value!r})"
     if isinstance(expr, StringExpr):
@@ -644,7 +675,7 @@ def _describe_expr(expr: Any) -> str:
 
 
 def _extract_span(expr: Any) -> Any | None:
-    if isinstance(expr, (AtomExpr, StringExpr)):
+    if isinstance(expr, (AtomExpr, StringExpr, SInt, SReal, SRational)):
         span = expr.span
         if span is None:
             return None

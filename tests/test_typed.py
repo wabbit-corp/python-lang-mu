@@ -188,8 +188,10 @@ def test_registry_custom_deserializer_used_when_no_field_override() -> None:
     registry = DecoderRegistry()
 
     def decode_int(expr, _ctx: DecodeContext) -> int:
-        from mu.types import AtomExpr
+        from mu.types import AtomExpr, SInt
 
+        if isinstance(expr, SInt):
+            return len(str(expr.value))
         assert isinstance(expr, AtomExpr)
         return len(expr.value)
 

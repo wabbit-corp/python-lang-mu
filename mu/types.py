@@ -91,18 +91,18 @@ class StringExpr(Expr):
         return self.value
 
 
-# 123.456 | 123. | .456 | 123e4 | 123.456e4 | 123.e4 | .456e4
+# 123.456 | 123. | 123e4 | 123.456e4 | 123.e4
 @dataclass
 class SReal(Expr):
-    """Real-number token node (currently stored as source text)."""
+    """Floating-point token node."""
 
-    value: str
+    value: float
     span: TokenSpans | None = None
 
     def __str__(self) -> str:
         if self.span is not None:
             return str(self.span)
-        return self.value
+        return str(self.value)
 
 
 # 123 | 0x123 | 0b101 | 0o123

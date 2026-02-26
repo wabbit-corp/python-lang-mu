@@ -7,11 +7,23 @@ from abc import ABC, abstractmethod
 from collections import OrderedDict
 from collections.abc import Callable
 from dataclasses import dataclass, field
+from fractions import Fraction
 from typing import Any
 
 from mu.parser import parse
 from mu.quoted import Quoted
-from mu.types import AtomExpr, Document, Expr, GroupExpr, MappingExpr, SequenceExpr, StringExpr
+from mu.types import (
+    AtomExpr,
+    Document,
+    Expr,
+    GroupExpr,
+    MappingExpr,
+    SequenceExpr,
+    SInt,
+    SRational,
+    SReal,
+    StringExpr,
+)
 
 
 class EvalNameError(NameError):
@@ -170,6 +182,15 @@ def eval_expr(
                 raise EvalNameError(f"Name '{a}' is not defined")
 
             return ctx.env[a]
+
+        case SInt(i):
+            return i
+
+        case SReal(r):
+            return r
+
+        case SRational(v):
+            return Fraction(v[0], v[1])
 
         case StringExpr(s):
             if "$" in s:

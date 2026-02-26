@@ -23,6 +23,9 @@ from mu.types import (
     MappingExpr,
     MappingField,
     SequenceExpr,
+    SInt,
+    SRational,
+    SReal,
     StringExpr,
     TokenSpans,
 )
@@ -184,9 +187,9 @@ def _encode_expr(value: Any, *, context: str, settings: _SerializeSettings) -> E
     if isinstance(value, bool):
         return AtomExpr("true" if value else "false")
     if isinstance(value, int):
-        return AtomExpr(str(value))
+        return SInt(value)
     if isinstance(value, float):
-        return AtomExpr(repr(value))
+        return SReal(value)
     if isinstance(value, str):
         return _encode_string(value, context=context)
     if isinstance(value, (list, tuple)):
@@ -404,7 +407,7 @@ class _Formatter:
         return result
 
     def _render_expr_with_spans(self, expr: Expr, *, level: int) -> str:
-        if isinstance(expr, (AtomExpr, StringExpr)):
+        if isinstance(expr, (AtomExpr, StringExpr, SInt, SReal, SRational)):
             if _complete_token_spans(expr.span):
                 return str(expr)
             return self._format_expr_no_spans(expr, level=level)
@@ -643,7 +646,7 @@ class _Formatter:
             return True
         if len(expr.values) > 8:
             return False
-        if not all(isinstance(v, (AtomExpr, StringExpr)) for v in expr.values):
+        if not all(isinstance(v, (AtomExpr, StringExpr, SInt, SReal, SRational)) for v in expr.values):
             return False
         first_type = type(expr.values[0])
         return all(type(v) is first_type for v in expr.values)
@@ -661,6 +664,12 @@ class _Formatter:
     def _inline_expr(self, expr: Expr) -> str:
         if isinstance(expr, AtomExpr):
             return expr.value
+        if isinstance(expr, SInt):
+            return str(expr.value)
+        if isinstance(expr, SReal):
+            return repr(expr.value)
+        if isinstance(expr, SRational):
+            return f"{expr.value[0]}/{expr.value[1]}"
         if isinstance(expr, StringExpr):
             return _quote_string(expr.value)
         if isinstance(expr, GroupExpr):
@@ -704,7 +713,7 @@ def _complete_token_spans(spans: TokenSpans | None) -> bool:
 
 
 def _has_any_spans_expr(expr: Expr) -> bool:
-    if isinstance(expr, (AtomExpr, StringExpr)):
+    if isinstance(expr, (AtomExpr, StringExpr, SInt, SReal, SRational)):
         return expr.span is not None
     if isinstance(expr, GroupExpr):
         return (
