@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://wabbit-corp.github.io/python-lang-mu/api-stable/">
+        <link rel="canonical" href="https://wabbit-corp.github.io/python-lang-mu/printing/">
       
       
-        <link rel="prev" href="../errors/">
+        <link rel="prev" href="../quickstart/">
       
       
-        <link rel="next" href="../api-experimental/">
+        <link rel="next" href="../typed-decoding/">
       
       
       <link rel="icon" href="../assets/images/favicon.png">
@@ -24,7 +24,7 @@
     
     
       
-        <title>Stable API - lang-mu</title>
+        <title>Printing - lang-mu</title>
       
     
     
@@ -66,7 +66,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#stable-api-reference" class="md-skip">
+        <a href="#pretty-printing-and-dumps" class="md-skip">
           Skip to content
         </a>
       
@@ -102,7 +102,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Stable API
+              Printing
             
           </span>
         </div>
@@ -285,10 +285,32 @@
       
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../printing/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Printing
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -299,6 +321,71 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#api-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      API Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#basic-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      Basic Usage
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dumps-with-explicit-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      dumps(...) With Explicit Mode
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#preserving-source-spans" class="md-nav__link">
+    <span class="md-ellipsis">
+      Preserving Source Spans
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#line-length-and-wrapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      Line Length And Wrapping
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -351,32 +438,10 @@
       
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    Stable API
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../api-stable/" class="md-nav__link">
         
   
   
@@ -387,35 +452,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#exported-symbols" class="md-nav__link">
-    <span class="md-ellipsis">
-      Exported Symbols
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -513,9 +549,45 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#exported-symbols" class="md-nav__link">
+  <a href="#api-overview" class="md-nav__link">
     <span class="md-ellipsis">
-      Exported Symbols
+      API Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#basic-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      Basic Usage
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dumps-with-explicit-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      dumps(...) With Explicit Mode
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#preserving-source-spans" class="md-nav__link">
+    <span class="md-ellipsis">
+      Preserving Source Spans
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#line-length-and-wrapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      Line Length And Wrapping
     </span>
   </a>
   
@@ -540,226 +612,84 @@
   
 
 
-<h1 id="stable-api-reference">Stable API Reference<a class="headerlink" href="#stable-api-reference" title="Permanent link">&para;</a></h1>
-<p><em>Generated from code by <code>scripts/generate_api_docs.py</code>. Do not edit by hand.</em></p>
-<p>Stable APIs are imported from top-level <code>mu</code>.</p>
-<h2 id="exported-symbols">Exported Symbols<a class="headerlink" href="#exported-symbols" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Name</th>
-<th>Kind</th>
-<th>Signature</th>
-<th>Defined In</th>
-<th>Summary</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>ParseError</code></td>
-<td>class</td>
-<td></td>
-<td><code>mu.parser</code></td>
-<td>Raised when Mu source cannot be parsed into a valid AST.</td>
-</tr>
-<tr>
-<td><code>Quoted</code></td>
-<td>class</td>
-<td></td>
-<td><code>mu.quoted</code></td>
-<td>Wraps a value that should be passed through without runtime evaluation.</td>
-</tr>
-<tr>
-<td><code>DecodeContext</code></td>
-<td>class</td>
-<td></td>
-<td><code>mu.typed</code></td>
-<td>Context object passed to custom decoder functions.</td>
-</tr>
-<tr>
-<td><code>DecodeError</code></td>
-<td>class</td>
-<td></td>
-<td><code>mu.typed</code></td>
-<td>Structured decode error with path/expected/got/span/cause details.</td>
-</tr>
-<tr>
-<td><code>DecodeWith</code></td>
-<td>class</td>
-<td></td>
-<td><code>mu.typed</code></td>
-<td>Annotated marker for a field-specific custom decode function.</td>
-</tr>
-<tr>
-<td><code>DecoderFn</code></td>
-<td>type alias</td>
-<td></td>
-<td><code>collections.abc</code></td>
-<td>No documentation provided.</td>
-</tr>
-<tr>
-<td><code>DecoderRegistry</code></td>
-<td>class</td>
-<td></td>
-<td><code>mu.typed</code></td>
-<td>Registry of target-type-specific decoder functions.</td>
-</tr>
-<tr>
-<td><code>FieldName</code></td>
-<td>class</td>
-<td></td>
-<td><code>mu.typed</code></td>
-<td>Annotated marker for overriding a dataclass field's Mu argument name.</td>
-</tr>
-<tr>
-<td><code>OneOrMore</code></td>
-<td>class</td>
-<td></td>
-<td><code>mu.typed</code></td>
-<td>Annotated marker for required variadic field arity (<code>1..N</code>).</td>
-</tr>
-<tr>
-<td><code>OptionalArg</code></td>
-<td>class</td>
-<td></td>
-<td><code>mu.typed</code></td>
-<td>Annotated marker for optional field arity (<code>0..1</code>).</td>
-</tr>
-<tr>
-<td><code>ZeroOrMore</code></td>
-<td>class</td>
-<td></td>
-<td><code>mu.typed</code></td>
-<td>Annotated marker for variadic field arity (<code>0..N</code>).</td>
-</tr>
-<tr>
-<td><code>AtomExpr</code></td>
-<td>class</td>
-<td></td>
-<td><code>mu.types</code></td>
-<td>Atom expression (identifier-like token) node.</td>
-</tr>
-<tr>
-<td><code>Document</code></td>
-<td>class</td>
-<td></td>
-<td><code>mu.types</code></td>
-<td>Top-level Mu parse result containing one or more expressions.</td>
-</tr>
-<tr>
-<td><code>Expr</code></td>
-<td>class</td>
-<td></td>
-<td><code>mu.types</code></td>
-<td>Base class for all Mu expression AST nodes.</td>
-</tr>
-<tr>
-<td><code>GroupExpr</code></td>
-<td>class</td>
-<td></td>
-<td><code>mu.types</code></td>
-<td>Parenthesized expression group node.</td>
-</tr>
-<tr>
-<td><code>MappingExpr</code></td>
-<td>class</td>
-<td></td>
-<td><code>mu.types</code></td>
-<td>Brace-delimited mapping node.</td>
-</tr>
-<tr>
-<td><code>MappingField</code></td>
-<td>class</td>
-<td></td>
-<td><code>mu.types</code></td>
-<td>Single key/value field inside a mapping expression.</td>
-</tr>
-<tr>
-<td><code>SequenceExpr</code></td>
-<td>class</td>
-<td></td>
-<td><code>mu.types</code></td>
-<td>Bracketed sequence node.</td>
-</tr>
-<tr>
-<td><code>StringExpr</code></td>
-<td>class</td>
-<td></td>
-<td><code>mu.types</code></td>
-<td>String expression node (normal or raw Mu string literal).</td>
-</tr>
-<tr>
-<td><code>load</code></td>
-<td>function</td>
-<td><code>(source: 'Source', *, type: 'Any \| None' = None, encoding: 'str' = 'utf-8', registry: 'DecoderRegistry \| None' = None, preserve_spans: 'bool' = False) -&gt; 'Document \| Any'</code></td>
-<td><code>mu.loading</code></td>
-<td>Load Mu from a path or file-like object.</td>
-</tr>
-<tr>
-<td><code>loads</code></td>
-<td>function</td>
-<td><code>(source: 'str', *, type: 'Any \| None' = None, registry: 'DecoderRegistry \| None' = None, preserve_spans: 'bool' = False) -&gt; 'Document \| Any'</code></td>
-<td><code>mu.loading</code></td>
-<td>Load Mu from a string.</td>
-</tr>
-<tr>
-<td><code>dumps</code></td>
-<td>function</td>
-<td><code>(value: 'Any', *, indent: 'int \| None' = None, max_line_length: 'int' = 88, positional_first_id_or_name: 'bool' = False, positional_first_field_names: 'Iterable[str] \| None' = None, positional_single_field: 'bool' = True, preserve_spans: 'bool' = True) -&gt; 'str'</code></td>
-<td><code>mu.printer</code></td>
-<td>Serialize a value to Mu source text.</td>
-</tr>
-<tr>
-<td><code>dumps_concise</code></td>
-<td>function</td>
-<td><code>(value: 'Any', *, max_line_length: 'int' = 88, positional_first_id_or_name: 'bool' = False, positional_first_field_names: 'Iterable[str] \| None' = None, positional_single_field: 'bool' = True, preserve_spans: 'bool' = True) -&gt; 'str'</code></td>
-<td><code>mu.printer</code></td>
-<td>Serialize a value using concise formatting.</td>
-</tr>
-<tr>
-<td><code>dumps_pretty</code></td>
-<td>function</td>
-<td><code>(value: 'Any', *, indent: 'int' = 2, max_line_length: 'int' = 88, positional_first_id_or_name: 'bool' = False, positional_first_field_names: 'Iterable[str] \| None' = None, positional_single_field: 'bool' = True, preserve_spans: 'bool' = True) -&gt; 'str'</code></td>
-<td><code>mu.printer</code></td>
-<td>Serialize a value using pretty multiline formatting.</td>
-</tr>
-<tr>
-<td><code>decode</code></td>
-<td>function</td>
-<td><code>(expr: 'Expr', target: 'Any', *, registry: 'DecoderRegistry \| None' = None, path: 'str' = '$') -&gt; 'Any'</code></td>
-<td><code>mu.typed</code></td>
-<td>Decode a pre-parsed Mu <code>Expr</code> into a target Python type.</td>
-</tr>
-<tr>
-<td><code>tag</code></td>
-<td>function</td>
-<td><code>(tag: 'str') -&gt; 'Callable[[type[T]], type[T]]'</code></td>
-<td><code>mu.typed</code></td>
-<td>Decorator that overrides the default dataclass tag used during decoding.</td>
-</tr>
-<tr>
-<td><code>parse_many</code></td>
-<td>function</td>
-<td><code>(source: 'str', target: 'Any', *, registry: 'DecoderRegistry \| None' = None) -&gt; 'list[Any]'</code></td>
-<td><code>mu.typed</code></td>
-<td>Parse and decode all top-level Mu expressions as a list.</td>
-</tr>
-<tr>
-<td><code>parse_one</code></td>
-<td>function</td>
-<td><code>(source: 'str', target: 'Any', *, registry: 'DecoderRegistry \| None' = None) -&gt; 'Any'</code></td>
-<td><code>mu.typed</code></td>
-<td>Parse and decode exactly one top-level Mu expression.</td>
-</tr>
-<tr>
-<td><code>parse</code></td>
-<td>function</td>
-<td><code>(input: 'str', preserve_spans: 'bool' = False) -&gt; 'Document'</code></td>
-<td><code>mu.parser</code></td>
-<td>Parse Mu source text into a <code>Document</code>.</td>
-</tr>
-</tbody>
-</table>
+<h1 id="pretty-printing-and-dumps">Pretty Printing And <code>dumps</code><a class="headerlink" href="#pretty-printing-and-dumps" title="Permanent link">&para;</a></h1>
+<p>Use <code>dumps(...)</code> APIs to serialize Mu AST nodes and Python values.</p>
+<h2 id="api-overview">API Overview<a class="headerlink" href="#api-overview" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>dumps(value, ...)</code></li>
+<li><code>indent=None</code> gives concise mode.</li>
+<li><code>indent=&lt;int&gt;</code> gives pretty mode.</li>
+<li><code>dumps_pretty(value, ...)</code></li>
+<li>Convenience wrapper for pretty mode.</li>
+<li><code>dumps_concise(value, ...)</code></li>
+<li>Convenience wrapper for concise mode.</li>
+</ul>
+<h2 id="basic-usage">Basic Usage<a class="headerlink" href="#basic-usage" title="Permanent link">&para;</a></h2>
+<div class="language-python highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">mu</span><span class="w"> </span><span class="kn">import</span> <span class="n">dumps_concise</span><span class="p">,</span> <span class="n">dumps_pretty</span>
+
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">AppJvm</span><span class="p">:</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">main</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">ports</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+
+
+<span class="n">cfg</span> <span class="o">=</span> <span class="n">AppJvm</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;billing-api&quot;</span><span class="p">,</span> <span class="n">main</span><span class="o">=</span><span class="s2">&quot;billing.Main&quot;</span><span class="p">,</span> <span class="n">ports</span><span class="o">=</span><span class="p">[</span><span class="mi">8080</span><span class="p">,</span> <span class="mi">8443</span><span class="p">])</span>
+
+<span class="n">pretty</span> <span class="o">=</span> <span class="n">dumps_pretty</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="n">positional_first_id_or_name</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">max_line_length</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">pretty</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;(app-jvm &quot;billing-api&quot;&#39;</span><span class="p">)</span>
+<span class="k">assert</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="ow">in</span> <span class="n">pretty</span>
+
+<span class="n">concise</span> <span class="o">=</span> <span class="n">dumps_concise</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="n">positional_first_id_or_name</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">concise</span> <span class="o">==</span> <span class="s1">&#39;(app-jvm &quot;billing-api&quot; :main &quot;billing.Main&quot; :ports [8080 8443])&#39;</span>
+</code></pre></div>
+<h2 id="dumps-with-explicit-mode"><code>dumps(...)</code> With Explicit Mode<a class="headerlink" href="#dumps-with-explicit-mode" title="Permanent link">&para;</a></h2>
+<div class="language-python highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">mu</span><span class="w"> </span><span class="kn">import</span> <span class="n">dumps</span>
+
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Include</span><span class="p">:</span>
+    <span class="n">path</span><span class="p">:</span> <span class="nb">str</span>
+
+
+<span class="n">cfg</span> <span class="o">=</span> <span class="n">Include</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="s2">&quot;shared/logging.mu&quot;</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">dumps</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;(include &quot;shared/logging.mu&quot;)&#39;</span>
+<span class="k">assert</span> <span class="n">dumps</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;(include &quot;shared/logging.mu&quot;)&#39;</span>
+</code></pre></div>
+<h2 id="preserving-source-spans">Preserving Source Spans<a class="headerlink" href="#preserving-source-spans" title="Permanent link">&para;</a></h2>
+<p>When parsing with <code>preserve_spans=True</code>, dumping with <code>preserve_spans=True</code>
+reuses the original token/spacing where possible.</p>
+<div class="language-python highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">mu</span><span class="w"> </span><span class="kn">import</span> <span class="n">dumps_pretty</span><span class="p">,</span> <span class="n">parse</span>
+
+<span class="n">source</span> <span class="o">=</span> <span class="s1">&#39;(app-jvm    &quot;demo&quot; :main   &quot;demo.Main&quot;)&#39;</span>
+<span class="n">doc</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">preserve_spans</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="k">assert</span> <span class="n">dumps_pretty</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">preserve_spans</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">==</span> <span class="n">source</span>
+<span class="k">assert</span> <span class="n">dumps_pretty</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">preserve_spans</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;(app-jvm &quot;demo&quot; :main &quot;demo.Main&quot;)&#39;</span>
+</code></pre></div>
+<h2 id="line-length-and-wrapping">Line Length And Wrapping<a class="headerlink" href="#line-length-and-wrapping" title="Permanent link">&para;</a></h2>
+<p>Use <code>max_line_length</code> to control when output wraps.</p>
+<div class="language-python highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">mu</span><span class="w"> </span><span class="kn">import</span> <span class="n">dumps_concise</span>
+
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Service</span><span class="p">:</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">main</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">features</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+
+
+<span class="n">cfg</span> <span class="o">=</span> <span class="n">Service</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;api&quot;</span><span class="p">,</span> <span class="n">main</span><span class="o">=</span><span class="s2">&quot;billing.Main&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;http&quot;</span><span class="p">,</span> <span class="s2">&quot;metrics&quot;</span><span class="p">,</span> <span class="s2">&quot;tracing&quot;</span><span class="p">])</span>
+<span class="n">wrapped</span> <span class="o">=</span> <span class="n">dumps_concise</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="n">positional_first_id_or_name</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">max_line_length</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+<span class="k">assert</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="ow">in</span> <span class="n">wrapped</span>
+</code></pre></div>
 
 
 
