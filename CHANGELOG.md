@@ -6,6 +6,20 @@ This project follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) an
 
 ## [Unreleased]
 
+## [0.3.2] - 2026-02-26
+
+### Fixed
+
+- Fixed AST `__str__` behavior for nodes without spans:
+  - `StringExpr` now emits properly quoted/escaped Mu string literals when spans are absent.
+  - `GroupExpr`, `SequenceExpr`, and `MappingExpr` now render canonical concise separators when spans are absent.
+  - `MappingField` now renders `key: value` fallback when span separator is absent.
+  - `Document.drop_spans()` now drops `leading_space` so spanless documents print concise canonical output.
+
+### Added
+
+- Regression tests for no-span AST string rendering in `tests/test_parser.py`.
+
 ## [0.3.1] - 2026-02-26
 
 ### Added

@@ -270,3 +270,13 @@ def test_parser_errors():
         parse_expr("[a b")
     with pytest.raises(ParseError):
         parse_expr("{a: 1")
+
+
+def test_ast_str_without_spans_is_concise_and_escaped() -> None:
+    doc = parse_mu('(app-jvm "demo\\nname" :main "demo.Main")', preserve_spans=False)
+    assert str(doc) == '(app-jvm "demo\\nname" :main "demo.Main")'
+
+
+def test_ast_str_without_spans_for_collections() -> None:
+    doc = parse_mu('[1 "x"] {name: "demo", ports: [8080 8443]}', preserve_spans=False)
+    assert str(doc) == '[1 "x"]\n{name: "demo", ports: [8080 8443]}'

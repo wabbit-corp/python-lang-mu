@@ -6,6 +6,50 @@ from mu.input import Span
 # from fractions import Fraction
 
 
+def _quote_string(value: str) -> str:
+    escaped = (
+        value.replace("\\", "\\\\")
+        .replace("\n", "\\n")
+        .replace("\t", "\\t")
+        .replace("\r", "\\r")
+        .replace("\0", "\\0")
+        .replace('"', '\\"')
+    )
+    return f'"{escaped}"'
+
+
+def _has_spans_expr(expr: "Expr") -> bool:
+    if isinstance(expr, (AtomExpr, StringExpr, SReal, SInt, SRational)):
+        return expr.span is not None
+    if isinstance(expr, GroupExpr):
+        return (
+            expr.open_bracket is not None
+            or expr.separators is not None
+            or expr.close_bracket is not None
+            or any(_has_spans_expr(value) for value in expr.values)
+        )
+    if isinstance(expr, SequenceExpr):
+        return (
+            expr.open_bracket is not None
+            or expr.separators is not None
+            or expr.close_bracket is not None
+            or any(_has_spans_expr(value) for value in expr.values)
+        )
+    if isinstance(expr, MappingExpr):
+        return (
+            expr.open_bracket is not None
+            or expr.separators is not None
+            or expr.close_bracket is not None
+            or any(
+                field.separator is not None
+                or _has_spans_expr(field.key)
+                or _has_spans_expr(field.value)
+                for field in expr.values
+            )
+        )
+    return False
+
+
 class Expr:
     """Base class for all Mu expression AST nodes."""
 
@@ -88,7 +132,7 @@ class StringExpr(Expr):
     def __str__(self) -> str:
         if self.span is not None:
             return str(self.span)
-        return self.value
+        return _quote_string(self.value)
 
 
 # 123.456 | 123. | 123e4 | 123.456e4 | 123.e4
@@ -145,17 +189,25 @@ class GroupExpr(Expr):
     close_bracket: TokenSpans | None = None
 
     def __str__(self) -> str:
-        result = ""
-        if self.open_bracket is not None:
-            result += f"{self.open_bracket}"
+        if (
+            self.open_bracket is None
+            and self.separators is None
+            and self.close_bracket is None
+        ):
+            return "(" + " ".join(str(value) for value in self.values) + ")"
 
+        result = ""
+        result += "(" if self.open_bracket is None else f"{self.open_bracket}"
+
+        separators = self.separators or []
         for i, value in enumerate(self.values):
             result += str(value)
-            if self.separators is not None:
-                result += f"{self.separators[i]}"
+            if i < len(separators):
+                result += f"{separators[i]}"
+            elif i < len(self.values) - 1:
+                result += " "
 
-        if self.close_bracket is not None:
-            result += f"{self.close_bracket}"
+        result += ")" if self.close_bracket is None else f"{self.close_bracket}"
         return result
 
 
@@ -171,17 +223,25 @@ class SequenceExpr(Expr):
     close_bracket: TokenSpans | None = None
 
     def __str__(self) -> str:
-        result = ""
-        if self.open_bracket is not None:
-            result += f"{self.open_bracket}"
+        if (
+            self.open_bracket is None
+            and self.separators is None
+            and self.close_bracket is None
+        ):
+            return "[" + " ".join(str(value) for value in self.values) + "]"
 
+        result = ""
+        result += "[" if self.open_bracket is None else f"{self.open_bracket}"
+
+        separators = self.separators or []
         for i, value in enumerate(self.values):
             result += str(value)
-            if self.separators is not None:
-                result += f"{self.separators[i]}"
+            if i < len(separators):
+                result += f"{separators[i]}"
+            elif i < len(self.values) - 1:
+                result += " "
 
-        if self.close_bracket is not None:
-            result += f"{self.close_bracket}"
+        result += "]" if self.close_bracket is None else f"{self.close_bracket}"
         return result
 
 
@@ -194,12 +254,9 @@ class MappingField:
     separator: TokenSpans | None = None
 
     def __str__(self) -> str:
-        result = ""
-        result += str(self.key)
-        if self.separator is not None:
-            result += f"{self.separator}"
-        result += str(self.value)
-        return result
+        if self.separator is None:
+            return f"{self.key}: {self.value}"
+        return f"{self.key}{self.separator}{self.value}"
 
 
 # { a : b, c : d }
@@ -214,17 +271,25 @@ class MappingExpr(Expr):
     close_bracket: TokenSpans | None = None
 
     def __str__(self) -> str:
-        result = ""
-        if self.open_bracket is not None:
-            result += f"{self.open_bracket}"
+        if (
+            self.open_bracket is None
+            and self.separators is None
+            and self.close_bracket is None
+        ):
+            return "{" + ", ".join(str(field) for field in self.values) + "}"
 
+        result = ""
+        result += "{" if self.open_bracket is None else f"{self.open_bracket}"
+
+        separators = self.separators or []
         for i, field in enumerate(self.values):
             result += str(field)
-            if self.separators is not None:
-                result += f"{self.separators[i]}"
+            if i < len(separators):
+                result += f"{separators[i]}"
+            elif i < len(self.values) - 1:
+                result += ", "
 
-        if self.close_bracket is not None:
-            result += f"{self.close_bracket}"
+        result += "}" if self.close_bracket is None else f"{self.close_bracket}"
         return result
 
 
@@ -236,6 +301,11 @@ class Document:
     leading_space: Span | None = None
 
     def __str__(self) -> str:
+        if self.leading_space is None and not any(
+            _has_spans_expr(expr) for expr in self.exprs
+        ):
+            return "\n".join(str(expr) for expr in self.exprs)
+
         result = ""
         if self.leading_space is not None:
             result += f"{self.leading_space.raw}"
@@ -244,9 +314,7 @@ class Document:
 
     def drop_spans(self) -> "Document":
         """Return an equivalent document with spans removed from all expressions."""
-        return Document(
-            [expr.drop_spans() for expr in self.exprs], leading_space=self.leading_space
-        )
+        return Document([expr.drop_spans() for expr in self.exprs], leading_space=None)
 
 
 Expr.Atom = AtomExpr

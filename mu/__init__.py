@@ -37,7 +37,7 @@ from mu.types import StringExpr as StringExpr
 try:
     __version__ = version("lang-mu")
 except PackageNotFoundError:  # pragma: no cover - local editable installs
-    __version__ = "0.3.1"
+    __version__ = "0.3.2"
 
 __all__ = [
     "ParseError",
