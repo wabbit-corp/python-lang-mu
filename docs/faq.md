@@ -25,3 +25,12 @@ Import from `mu`:
 ```python
 from mu import parse, parse_one
 ```
+
+## Does the parser support single quotes and numeric literals?
+
+Yes. Both `'...'` and `"..."` are parsed as strings. Numeric literals parse into
+typed AST nodes:
+
+- `SInt` for integers
+- `SReal` for real numbers and percentages
+- `SRational` for rational values

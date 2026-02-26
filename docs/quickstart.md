@@ -98,3 +98,22 @@ with open("docs/examples/quickstart-many.mu", "r", encoding="utf-8") as f:
 result = parse_many(source, Run | Include)
 assert result == [Run(task="lint"), Include(path="defaults.mu"), Run(task="test")]
 ```
+
+## Literal Parsing Behavior
+
+The parser supports single-quoted strings and typed numeric literals:
+
+```python
+from mu import parse
+from mu.types import AtomExpr, SInt, SRational, SReal, StringExpr
+
+doc = parse("'hello' 123 1.25 10% 3/4 first'")
+assert doc.exprs == [
+    StringExpr("hello"),
+    SInt(123),
+    SReal(1.25),
+    SReal(0.1),
+    SRational((3, 4)),
+    AtomExpr("first'"),
+]
+```

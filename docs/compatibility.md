@@ -23,7 +23,7 @@ The complete experimental symbol list is generated into [Experimental API](api-e
 
 ## Policy
 
-- Stable API: additive changes only within `0.2.x`.
+- Stable API: additive changes only within `0.3.x`.
 - Experimental API: may change without deprecation.
 - Non-exported internals (for example `mu.arg_match` and parser private helpers) are unsupported.
 

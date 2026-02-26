@@ -6,6 +6,26 @@ This project follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) an
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-02-26
+
+### Added
+
+- Kotlin-parity parser test coverage in `tests/test_parser_kotlin_parity.py` for:
+  - single-quoted strings
+  - numeric literals (`SInt`, `SReal`, `SRational`)
+  - adjacent comment handling (`foo;bar`)
+  - parser error paths raising `ParseError`
+
+### Changed
+
+- Parser behavior aligned with Kotlin reference:
+  - parser input failures now raise `ParseError` (no assertion-based user errors)
+  - single-quoted strings supported
+  - unknown string escapes preserved, `\u{...}` escapes supported
+  - numeric literals parsed to typed AST nodes
+- Typed decode, printer, and experimental eval runtime updated to handle numeric AST nodes.
+- Documentation updated to describe literal parsing behavior and current `0.3.x` compatibility policy.
+
 ## [0.3.0] - 2026-02-26
 
 ### Added

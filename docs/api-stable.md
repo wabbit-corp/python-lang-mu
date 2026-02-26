@@ -36,4 +36,4 @@ Stable APIs are imported from top-level `mu`.
 | `tag` | function | `(tag: 'str') -> 'Callable[[type[T]], type[T]]'` | `mu.typed` | Decorator that overrides the default dataclass tag used during decoding. |
 | `parse_many` | function | `(source: 'str', target: 'Any', *, registry: 'DecoderRegistry \| None' = None) -> 'list[Any]'` | `mu.typed` | Parse and decode all top-level Mu expressions as a list. |
 | `parse_one` | function | `(source: 'str', target: 'Any', *, registry: 'DecoderRegistry \| None' = None) -> 'Any'` | `mu.typed` | Parse and decode exactly one top-level Mu expression. |
-| `parse` | function | `(input: str, preserve_spans: bool = False) -> mu.types.Document` | `mu.parser` | Parse Mu source text into a `Document`. |
+| `parse` | function | `(input: 'str', preserve_spans: 'bool' = False) -> 'Document'` | `mu.parser` | Parse Mu source text into a `Document`. |

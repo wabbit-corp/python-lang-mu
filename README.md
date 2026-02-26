@@ -43,6 +43,30 @@ assert isinstance(app.values[0], AtomExpr)
 assert app.values[0].value == "app-jvm"
 ```
 
+### Parser Literals
+
+The parser supports both single- and double-quoted strings, and parses numeric
+literals into dedicated AST node types:
+
+- `SInt` for integers
+- `SReal` for real numbers and percentages
+- `SRational` for rational values
+
+```python
+from mu import parse
+from mu.types import AtomExpr, SInt, SRational, SReal, StringExpr
+
+doc = parse("'hi' 42 1.5 50% 2/3 first'")
+assert doc.exprs == [
+    StringExpr("hi"),
+    SInt(42),
+    SReal(1.5),
+    SReal(0.5),
+    SRational((2, 3)),
+    AtomExpr("first'"),
+]
+```
+
 ## Quickstart: Typed decoding
 
 ```python
