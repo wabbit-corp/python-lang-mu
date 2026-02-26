@@ -139,7 +139,7 @@ def parse_one(
 ) -> Any:
     """Parse and decode exactly one top-level Mu expression."""
     decode_registry = registry or DecoderRegistry()
-    doc = parse(source, no_spans=False)
+    doc = parse(source, preserve_spans=True)
     if len(doc.exprs) != 1:
         raise DecodeError(
             path="$",
@@ -157,7 +157,7 @@ def parse_many(
 ) -> list[Any]:
     """Parse and decode all top-level Mu expressions as a list."""
     decode_registry = registry or DecoderRegistry()
-    doc = parse(source, no_spans=False)
+    doc = parse(source, preserve_spans=True)
     return [
         _decode_value(expr, target, decode_registry, path=f"$[{index}]")
         for index, expr in enumerate(doc.exprs)

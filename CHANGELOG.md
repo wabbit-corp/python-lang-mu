@@ -6,6 +6,20 @@ This project follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) an
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-02-26
+
+### Added
+
+- `load` and `loads` convenience APIs for string/path/file loading with optional typed decode.
+
+### Changed
+
+- Parser API now uses `preserve_spans` as the span-control parameter.
+
+### Removed
+
+- Removed parser `no_spans` alias.
+
 ## [0.2.1] - 2026-02-25
 
 ### Added

@@ -27,8 +27,10 @@ Stable APIs are imported from top-level `mu`.
 | `MappingField` | class |  | `mu.types` | Single key/value field inside a mapping expression. |
 | `SequenceExpr` | class |  | `mu.types` | Bracketed sequence node. |
 | `StringExpr` | class |  | `mu.types` | String expression node (normal or raw Mu string literal). |
+| `load` | function | `(source: 'Source', *, type: 'Any \| None' = None, encoding: 'str' = 'utf-8', registry: 'DecoderRegistry \| None' = None, preserve_spans: 'bool' = False) -> 'Document \| Any'` | `mu.loading` | Load Mu from a path or file-like object. |
+| `loads` | function | `(source: 'str', *, type: 'Any \| None' = None, registry: 'DecoderRegistry \| None' = None, preserve_spans: 'bool' = False) -> 'Document \| Any'` | `mu.loading` | Load Mu from a string. |
 | `decode` | function | `(expr: 'Expr', target: 'Any', *, registry: 'DecoderRegistry \| None' = None, path: 'str' = '$') -> 'Any'` | `mu.typed` | Decode a pre-parsed Mu `Expr` into a target Python type. |
 | `tag` | function | `(tag: 'str') -> 'Callable[[type[T]], type[T]]'` | `mu.typed` | Decorator that overrides the default dataclass tag used during decoding. |
 | `parse_many` | function | `(source: 'str', target: 'Any', *, registry: 'DecoderRegistry \| None' = None) -> 'list[Any]'` | `mu.typed` | Parse and decode all top-level Mu expressions as a list. |
 | `parse_one` | function | `(source: 'str', target: 'Any', *, registry: 'DecoderRegistry \| None' = None) -> 'Any'` | `mu.typed` | Parse and decode exactly one top-level Mu expression. |
-| `parse` | function | `(input: str, no_spans: bool = True) -> mu.types.Document` | `mu.parser` | Parse Mu source text into a `Document`. |
+| `parse` | function | `(input: str, preserve_spans: bool = False) -> mu.types.Document` | `mu.parser` | Parse Mu source text into a `Document`. |

@@ -6,7 +6,7 @@ from mu.types import AtomExpr, Expr, GroupExpr, MappingExpr, MappingField, Seque
 
 
 def parse_expr(expr: str) -> list[Expr]:
-    doc = parse_mu(expr, no_spans=False)
+    doc = parse_mu(expr, preserve_spans=True)
     assert str(doc) == expr
     return doc.drop_spans().exprs
 

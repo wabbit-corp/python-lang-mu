@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from importlib.metadata import PackageNotFoundError, version
 
+from mu.loading import load as load
+from mu.loading import loads as loads
 from mu.parser import ParseError as ParseError
 from mu.parser import parse as parse
 from mu.quoted import Quoted as Quoted
@@ -32,7 +34,7 @@ from mu.types import StringExpr as StringExpr
 try:
     __version__ = version("lang-mu")
 except PackageNotFoundError:  # pragma: no cover - local editable installs
-    __version__ = "0.2.1"
+    __version__ = "0.3.0"
 
 __all__ = [
     "ParseError",
@@ -55,6 +57,8 @@ __all__ = [
     "SequenceExpr",
     "StringExpr",
     "__version__",
+    "load",
+    "loads",
     "decode",
     "tag",
     "parse_many",

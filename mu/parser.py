@@ -287,12 +287,16 @@ def _parse_map(input: _Input) -> MappingExpr:
 
 
 @debug
-def parse(input: str, no_spans: bool = True) -> Document:
+def parse(
+    input: str,
+    preserve_spans: bool = False,
+) -> Document:
     """Parse Mu source text into a `Document`.
 
     Args:
         input: Mu source text.
-        no_spans: When `True`, returned nodes have span metadata removed.
+        preserve_spans: When `True`, keep token/space span metadata on nodes.
+            Default `False` returns span-free nodes.
 
     Returns:
         Parsed `Document`.
@@ -304,6 +308,6 @@ def parse(input: str, no_spans: bool = True) -> Document:
         top_level.append(_parse_one_sexpr(input_r))
 
     result = Document(top_level, leading_space=leading_space)
-    if no_spans:
+    if not preserve_spans:
         result = result.drop_spans()
     return result
