@@ -40,5 +40,6 @@ assert app.values[0].value == "app-jvm"
 
 - Start with [Installation](installation.md).
 - Follow [Quickstart](quickstart.md).
+- Use [Printing](printing.md) for `dumps`, `dumps_pretty`, and `dumps_concise`.
 - Use [Typed Decoding](typed-decoding.md) for dataclass-based models.
 - Review [Compatibility](compatibility.md) before depending on runtime APIs.

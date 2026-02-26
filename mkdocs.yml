@@ -23,6 +23,7 @@ nav:
   - Home: index.md
   - Installation: installation.md
   - Quickstart: quickstart.md
+  - Printing: printing.md
   - Typed Decoding: typed-decoding.md
   - Error Handling: errors.md
   - Stable API: api-stable.md
