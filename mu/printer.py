@@ -30,7 +30,6 @@ from mu.types import (
     TokenSpans,
 )
 
-_DEFAULT_POSITIONAL_FIRST_FIELD_NAMES = frozenset({"id", "name"})
 _ATOM_RE = re.compile(r"^[^\s\(\)\[\]\{\}\",;]+$")
 
 
@@ -39,9 +38,8 @@ def dumps(
     *,
     indent: int | None = None,
     max_line_length: int = 88,
-    positional_first_id_or_name: bool = False,
-    positional_first_field_names: Iterable[str] | None = None,
-    positional_single_field: bool = True,
+    first_positional_fields: Iterable[str] = (),
+    single_field_positional: bool = True,
     preserve_spans: bool = True,
 ) -> str:
     """Serialize a value to Mu source text.
@@ -51,13 +49,10 @@ def dumps(
             and common Python container/scalar types.
         indent: Pretty indentation width. If `None`, concise mode is used.
         max_line_length: Preferred maximum line width before multiline layout.
-        positional_first_id_or_name: When `True`, dataclass groups may render
-            the first field positionally when its field name matches
-            `positional_first_field_names`.
-        positional_first_field_names: Field names that may be rendered
-            positionally for the first dataclass field when
-            `positional_first_id_or_name=True`.
-        positional_single_field: When `True`, single-field dataclasses are
+        first_positional_fields: Field names that may be rendered positionally
+            for the first dataclass field. Empty disables this behavior.
+            Common choice: `{"id", "name"}`.
+        single_field_positional: When `True`, single-field dataclasses are
             rendered positionally (for example `(include "path")`).
         preserve_spans: When `True`, AST inputs with complete span metadata are
             rendered from source spans to preserve original formatting.
@@ -69,16 +64,11 @@ def dumps(
     indent_width = 2 if indent is None else indent
     if indent_width <= 0:
         raise ValueError("indent must be > 0 when provided")
-    positional_names = (
-        _DEFAULT_POSITIONAL_FIRST_FIELD_NAMES
-        if positional_first_field_names is None
-        else frozenset(positional_first_field_names)
-    )
+    positional_names = frozenset(first_positional_fields)
 
     settings = _SerializeSettings(
-        positional_first_id_or_name=positional_first_id_or_name,
-        positional_first_field_names=positional_names,
-        positional_single_field=positional_single_field,
+        first_positional_fields=positional_names,
+        single_field_positional=single_field_positional,
         preserve_spans=preserve_spans,
     )
     doc = _to_document(value, settings=settings)
@@ -97,9 +87,8 @@ def dumps_pretty(
     *,
     indent: int = 2,
     max_line_length: int = 88,
-    positional_first_id_or_name: bool = False,
-    positional_first_field_names: Iterable[str] | None = None,
-    positional_single_field: bool = True,
+    first_positional_fields: Iterable[str] = (),
+    single_field_positional: bool = True,
     preserve_spans: bool = True,
 ) -> str:
     """Serialize a value using pretty multiline formatting."""
@@ -107,9 +96,8 @@ def dumps_pretty(
         value,
         indent=indent,
         max_line_length=max_line_length,
-        positional_first_id_or_name=positional_first_id_or_name,
-        positional_first_field_names=positional_first_field_names,
-        positional_single_field=positional_single_field,
+        first_positional_fields=first_positional_fields,
+        single_field_positional=single_field_positional,
         preserve_spans=preserve_spans,
     )
 
@@ -118,9 +106,8 @@ def dumps_concise(
     value: Any,
     *,
     max_line_length: int = 88,
-    positional_first_id_or_name: bool = False,
-    positional_first_field_names: Iterable[str] | None = None,
-    positional_single_field: bool = True,
+    first_positional_fields: Iterable[str] = (),
+    single_field_positional: bool = True,
     preserve_spans: bool = True,
 ) -> str:
     """Serialize a value using concise formatting."""
@@ -128,18 +115,16 @@ def dumps_concise(
         value,
         indent=None,
         max_line_length=max_line_length,
-        positional_first_id_or_name=positional_first_id_or_name,
-        positional_first_field_names=positional_first_field_names,
-        positional_single_field=positional_single_field,
+        first_positional_fields=first_positional_fields,
+        single_field_positional=single_field_positional,
         preserve_spans=preserve_spans,
     )
 
 
 @dataclass(frozen=True)
 class _SerializeSettings:
-    positional_first_id_or_name: bool
-    positional_first_field_names: frozenset[str]
-    positional_single_field: bool
+    first_positional_fields: frozenset[str]
+    single_field_positional: bool
     preserve_spans: bool
 
 
@@ -285,13 +270,13 @@ def _positional_fields(
 ) -> set[str]:
     if not fields:
         return set()
-    if settings.positional_single_field and len(fields) == 1:
+    if settings.single_field_positional and len(fields) == 1:
         return {fields[0][0].field_name}
 
-    if settings.positional_first_id_or_name:
+    if settings.first_positional_fields:
         first = fields[0][0]
         names = {first.field_name, first.mu_name}
-        if names & settings.positional_first_field_names:
+        if names & settings.first_positional_fields:
             return {first.field_name}
     return set()
 

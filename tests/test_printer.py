@@ -17,6 +17,8 @@ from mu import (
     parse,
 )
 
+_ID_NAME = {"id", "name"}
+
 
 @dataclass
 class AppJvm:
@@ -66,7 +68,7 @@ def test_dumps_pretty_document_like_output() -> None:
         ),
         Include(path="shared/logging.mu"),
     ]
-    result = dumps_pretty(source, positional_first_id_or_name=True)
+    result = dumps_pretty(source, first_positional_fields=_ID_NAME)
     assert (
         result
         == """(app-jvm "billing-api"
@@ -92,7 +94,7 @@ def test_dumps_concise_document_like_output() -> None:
         ),
         Include(path="shared/logging.mu"),
     ]
-    result = dumps_concise(source, positional_first_id_or_name=True, max_line_length=140)
+    result = dumps_concise(source, first_positional_fields=_ID_NAME, max_line_length=140)
     assert (
         result
         == '(app-jvm "billing-api" :main "billing.Main" :ports [8080 8443] :env {profile: prod, region: us-east-1})\n'
@@ -102,36 +104,35 @@ def test_dumps_concise_document_like_output() -> None:
 
 def test_dumps_supports_indent_none_vs_pretty() -> None:
     value = Demo(name="billing-api", main="billing.Main")
-    concise = dumps(value, indent=None, positional_first_id_or_name=True, positional_single_field=False)
-    pretty = dumps(value, indent=2, positional_first_id_or_name=True, positional_single_field=False)
+    concise = dumps(value, indent=None, first_positional_fields=_ID_NAME, single_field_positional=False)
+    pretty = dumps(value, indent=2, first_positional_fields=_ID_NAME, single_field_positional=False)
     assert concise == '(demo "billing-api" :main "billing.Main")'
     assert pretty == '(demo "billing-api" :main "billing.Main")'
 
 
 def test_field_names_default_and_name_flag() -> None:
     value = Demo(name="billing-api", main="billing.Main")
-    named = dumps_concise(value, positional_single_field=False)
+    named = dumps_concise(value, single_field_positional=False)
     positional = dumps_concise(
         value,
-        positional_first_id_or_name=True,
-        positional_single_field=False,
+        first_positional_fields=_ID_NAME,
+        single_field_positional=False,
     )
     assert named == '(demo :name "billing-api" :main "billing.Main")'
     assert positional == '(demo "billing-api" :main "billing.Main")'
 
 
-def test_custom_positional_first_field_names() -> None:
+def test_custom_first_positional_fields() -> None:
     value = Slugged(slug="billing-api", main="billing.Main")
     default = dumps_concise(
         value,
-        positional_first_id_or_name=True,
-        positional_single_field=False,
+        first_positional_fields=_ID_NAME,
+        single_field_positional=False,
     )
     custom = dumps_concise(
         value,
-        positional_first_id_or_name=True,
-        positional_first_field_names={"slug"},
-        positional_single_field=False,
+        first_positional_fields={"slug"},
+        single_field_positional=False,
     )
     assert default == '(slugged :slug "billing-api" :main "billing.Main")'
     assert custom == '(slugged "billing-api" :main "billing.Main")'
@@ -141,15 +142,15 @@ def test_annotated_values_optional_and_vararg() -> None:
     value = Service(name="api", nickname=None, features=["http", "metrics"])
     result = dumps_concise(
         value,
-        positional_first_id_or_name=True,
-        positional_single_field=False,
+        first_positional_fields=_ID_NAME,
+        single_field_positional=False,
     )
     assert result == '(service "api" :features "http" "metrics")'
 
 
 def test_annotated_field_name_override() -> None:
     value = Aliased(first_name="Ada", last_name="Lovelace")
-    result = dumps_concise(value, positional_single_field=False)
+    result = dumps_concise(value, single_field_positional=False)
     assert result == '(aliased :display-name "Ada" :last-name "Lovelace")'
 
 
@@ -163,7 +164,7 @@ def test_max_line_length_wraps_concise_output() -> None:
     wrapped = dumps_concise(
         value,
         max_line_length=40,
-        positional_first_id_or_name=True,
+        first_positional_fields=_ID_NAME,
     )
     assert "\n" in wrapped
     assert wrapped.startswith('(app-jvm "billing-api"')

@@ -6,6 +6,18 @@ This project follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) an
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-02-26
+
+### Changed
+
+- Simplified `dumps` option names for positional field formatting:
+  - removed `positional_first_id_or_name`
+  - removed `positional_first_field_names`
+  - removed `positional_single_field`
+  - added `first_positional_fields`
+  - added `single_field_positional`
+- Updated docs and tests for the new printing option names.
+
 ## [0.3.2] - 2026-02-26
 
 ### Fixed

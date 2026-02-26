@@ -7,6 +7,8 @@ Use `dumps(...)` APIs to serialize Mu AST nodes and Python values.
 - `dumps(value, ...)`
   - `indent=None` gives concise mode.
   - `indent=<int>` gives pretty mode.
+  - `first_positional_fields={"id", "name"}` enables positional first-field rendering.
+  - `single_field_positional=True` keeps single-field tags concise (for example `(include "x")`).
 - `dumps_pretty(value, ...)`
   - Convenience wrapper for pretty mode.
 - `dumps_concise(value, ...)`
@@ -29,11 +31,11 @@ class AppJvm:
 
 cfg = AppJvm(name="billing-api", main="billing.Main", ports=[8080, 8443])
 
-pretty = dumps_pretty(cfg, positional_first_id_or_name=True, max_line_length=30)
+pretty = dumps_pretty(cfg, first_positional_fields={"id", "name"}, max_line_length=30)
 assert pretty.startswith('(app-jvm "billing-api"')
 assert "\n" in pretty
 
-concise = dumps_concise(cfg, positional_first_id_or_name=True)
+concise = dumps_concise(cfg, first_positional_fields={"id", "name"})
 assert concise == '(app-jvm "billing-api" :main "billing.Main" :ports [8080 8443])'
 ```
 
@@ -88,6 +90,6 @@ class Service:
 
 
 cfg = Service(name="api", main="billing.Main", features=["http", "metrics", "tracing"])
-wrapped = dumps_concise(cfg, positional_first_id_or_name=True, max_line_length=30)
+wrapped = dumps_concise(cfg, first_positional_fields={"id", "name"}, max_line_length=30)
 assert "\n" in wrapped
 ```
