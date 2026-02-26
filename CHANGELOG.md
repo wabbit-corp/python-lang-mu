@@ -11,6 +11,11 @@ This project follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) an
 ### Added
 
 - `load` and `loads` convenience APIs for string/path/file loading with optional typed decode.
+- Mu printer API:
+  - `dumps`, `dumps_pretty`, `dumps_concise`
+  - dataclass-aware rendering with `Annotated` marker handling
+  - line-length-aware pretty/concise layout controls
+  - optional span-preserving rendering with fallback for partially modified ASTs
 
 ### Changed
 

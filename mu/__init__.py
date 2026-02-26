@@ -8,6 +8,9 @@ from mu.loading import load as load
 from mu.loading import loads as loads
 from mu.parser import ParseError as ParseError
 from mu.parser import parse as parse
+from mu.printer import dumps as dumps
+from mu.printer import dumps_concise as dumps_concise
+from mu.printer import dumps_pretty as dumps_pretty
 from mu.quoted import Quoted as Quoted
 from mu.typed import DecodeContext as DecodeContext
 from mu.typed import DecodeError as DecodeError
@@ -59,6 +62,9 @@ __all__ = [
     "__version__",
     "load",
     "loads",
+    "dumps",
+    "dumps_concise",
+    "dumps_pretty",
     "decode",
     "tag",
     "parse_many",
