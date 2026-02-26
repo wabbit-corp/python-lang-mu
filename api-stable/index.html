@@ -705,21 +705,21 @@
 <tr>
 <td><code>dumps</code></td>
 <td>function</td>
-<td><code>(value: 'Any', *, indent: 'int \| None' = None, max_line_length: 'int' = 88, positional_first_id_or_name: 'bool' = False, positional_first_field_names: 'Iterable[str] \| None' = None, positional_single_field: 'bool' = True, preserve_spans: 'bool' = True) -&gt; 'str'</code></td>
+<td><code>(value: 'Any', *, indent: 'int \| None' = None, max_line_length: 'int' = 88, first_positional_fields: 'Iterable[str]' = (), single_field_positional: 'bool' = True, preserve_spans: 'bool' = True) -&gt; 'str'</code></td>
 <td><code>mu.printer</code></td>
 <td>Serialize a value to Mu source text.</td>
 </tr>
 <tr>
 <td><code>dumps_concise</code></td>
 <td>function</td>
-<td><code>(value: 'Any', *, max_line_length: 'int' = 88, positional_first_id_or_name: 'bool' = False, positional_first_field_names: 'Iterable[str] \| None' = None, positional_single_field: 'bool' = True, preserve_spans: 'bool' = True) -&gt; 'str'</code></td>
+<td><code>(value: 'Any', *, max_line_length: 'int' = 88, first_positional_fields: 'Iterable[str]' = (), single_field_positional: 'bool' = True, preserve_spans: 'bool' = True) -&gt; 'str'</code></td>
 <td><code>mu.printer</code></td>
 <td>Serialize a value using concise formatting.</td>
 </tr>
 <tr>
 <td><code>dumps_pretty</code></td>
 <td>function</td>
-<td><code>(value: 'Any', *, indent: 'int' = 2, max_line_length: 'int' = 88, positional_first_id_or_name: 'bool' = False, positional_first_field_names: 'Iterable[str] \| None' = None, positional_single_field: 'bool' = True, preserve_spans: 'bool' = True) -&gt; 'str'</code></td>
+<td><code>(value: 'Any', *, indent: 'int' = 2, max_line_length: 'int' = 88, first_positional_fields: 'Iterable[str]' = (), single_field_positional: 'bool' = True, preserve_spans: 'bool' = True) -&gt; 'str'</code></td>
 <td><code>mu.printer</code></td>
 <td>Serialize a value using pretty multiline formatting.</td>
 </tr>

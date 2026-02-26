@@ -619,6 +619,8 @@
 <li><code>dumps(value, ...)</code></li>
 <li><code>indent=None</code> gives concise mode.</li>
 <li><code>indent=&lt;int&gt;</code> gives pretty mode.</li>
+<li><code>first_positional_fields={"id", "name"}</code> enables positional first-field rendering.</li>
+<li><code>single_field_positional=True</code> keeps single-field tags concise (for example <code>(include "x")</code>).</li>
 <li><code>dumps_pretty(value, ...)</code></li>
 <li>Convenience wrapper for pretty mode.</li>
 <li><code>dumps_concise(value, ...)</code></li>
@@ -639,11 +641,11 @@
 
 <span class="n">cfg</span> <span class="o">=</span> <span class="n">AppJvm</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;billing-api&quot;</span><span class="p">,</span> <span class="n">main</span><span class="o">=</span><span class="s2">&quot;billing.Main&quot;</span><span class="p">,</span> <span class="n">ports</span><span class="o">=</span><span class="p">[</span><span class="mi">8080</span><span class="p">,</span> <span class="mi">8443</span><span class="p">])</span>
 
-<span class="n">pretty</span> <span class="o">=</span> <span class="n">dumps_pretty</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="n">positional_first_id_or_name</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">max_line_length</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+<span class="n">pretty</span> <span class="o">=</span> <span class="n">dumps_pretty</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="n">first_positional_fields</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">},</span> <span class="n">max_line_length</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
 <span class="k">assert</span> <span class="n">pretty</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;(app-jvm &quot;billing-api&quot;&#39;</span><span class="p">)</span>
 <span class="k">assert</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="ow">in</span> <span class="n">pretty</span>
 
-<span class="n">concise</span> <span class="o">=</span> <span class="n">dumps_concise</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="n">positional_first_id_or_name</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">concise</span> <span class="o">=</span> <span class="n">dumps_concise</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="n">first_positional_fields</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">})</span>
 <span class="k">assert</span> <span class="n">concise</span> <span class="o">==</span> <span class="s1">&#39;(app-jvm &quot;billing-api&quot; :main &quot;billing.Main&quot; :ports [8080 8443])&#39;</span>
 </code></pre></div>
 <h2 id="dumps-with-explicit-mode"><code>dumps(...)</code> With Explicit Mode<a class="headerlink" href="#dumps-with-explicit-mode" title="Permanent link">&para;</a></h2>
@@ -687,7 +689,7 @@ reuses the original token/spacing where possible.</p>
 
 
 <span class="n">cfg</span> <span class="o">=</span> <span class="n">Service</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;api&quot;</span><span class="p">,</span> <span class="n">main</span><span class="o">=</span><span class="s2">&quot;billing.Main&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;http&quot;</span><span class="p">,</span> <span class="s2">&quot;metrics&quot;</span><span class="p">,</span> <span class="s2">&quot;tracing&quot;</span><span class="p">])</span>
-<span class="n">wrapped</span> <span class="o">=</span> <span class="n">dumps_concise</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="n">positional_first_id_or_name</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">max_line_length</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+<span class="n">wrapped</span> <span class="o">=</span> <span class="n">dumps_concise</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="n">first_positional_fields</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">},</span> <span class="n">max_line_length</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
 <span class="k">assert</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="ow">in</span> <span class="n">wrapped</span>
 </code></pre></div>
 
