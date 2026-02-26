@@ -342,6 +342,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#literal-parsing-behavior" class="md-nav__link">
+    <span class="md-ellipsis">
+      Literal Parsing Behavior
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -535,6 +544,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#literal-parsing-behavior" class="md-nav__link">
+    <span class="md-ellipsis">
+      Literal Parsing Behavior
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -556,17 +574,23 @@
 
 <h1 id="quickstart">Quickstart<a class="headerlink" href="#quickstart" title="Permanent link">&para;</a></h1>
 <h2 id="parse-mu-source">Parse Mu Source<a class="headerlink" href="#parse-mu-source" title="Permanent link">&para;</a></h2>
+<p><code>docs/examples/quickstart-parse.mu</code></p>
+<div class="language-clojure highlight"><pre><span></span><code><span class="c1">; application plus shared includes</span>
+<span class="p">(</span><span class="nf">app-jvm</span><span class="w"> </span><span class="s">&quot;billing-api&quot;</span>
+<span class="w">  </span><span class="ss">:main</span><span class="w"> </span><span class="s">&quot;billing.Main&quot;</span>
+<span class="w">  </span><span class="ss">:ports</span><span class="w"> </span><span class="p">[</span><span class="mi">8080</span><span class="w"> </span><span class="mi">8443</span><span class="p">]</span>
+<span class="w">  </span><span class="ss">:env</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nv">profile</span><span class="err">:</span><span class="w"> </span><span class="nv">prod</span>,
+<span class="w">    </span><span class="nv">region</span><span class="err">:</span><span class="w"> </span><span class="nv">us-east-1</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">)</span>
+
+<span class="p">(</span><span class="nf">include</span><span class="w"> </span><span class="s">&quot;shared/logging.mu&quot;</span><span class="p">)</span>
+</code></pre></div>
 <div class="language-python highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">mu</span><span class="w"> </span><span class="kn">import</span> <span class="n">AtomExpr</span><span class="p">,</span> <span class="n">Document</span><span class="p">,</span> <span class="n">GroupExpr</span><span class="p">,</span> <span class="n">parse</span>
 
-<span class="n">source</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">; application plus shared includes</span>
-<span class="s2">(app-jvm &quot;billing-api&quot;</span>
-<span class="s2">  :main &quot;billing.Main&quot;</span>
-<span class="s2">  :ports [8080 8443]</span>
-<span class="s2">  :env {profile: prod, region: us-east-1}</span>
-<span class="s2">)</span>
-<span class="s2">(include &quot;shared/logging.mu&quot;)</span>
-<span class="s2">&quot;&quot;&quot;</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;docs/examples/quickstart-parse.mu&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">source</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
 
 <span class="n">doc</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
 <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">Document</span><span class="p">)</span>
@@ -578,6 +602,13 @@
 <span class="k">assert</span> <span class="n">app</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="s2">&quot;app-jvm&quot;</span>
 </code></pre></div>
 <h2 id="decode-a-single-expression">Decode a Single Expression<a class="headerlink" href="#decode-a-single-expression" title="Permanent link">&para;</a></h2>
+<p><code>docs/examples/quickstart-single.mu</code></p>
+<div class="language-clojure highlight"><pre><span></span><code><span class="p">(</span><span class="nf">demo</span>
+<span class="w">  </span><span class="ss">:name</span><span class="w"> </span><span class="s">&quot;backend&quot;</span>
+<span class="w">  </span><span class="ss">:aliases</span><span class="w"> </span><span class="s">&quot;api&quot;</span>
+<span class="w">  </span><span class="ss">:aliases</span><span class="w"> </span><span class="s">&quot;service&quot;</span>
+<span class="p">)</span>
+</code></pre></div>
 <div class="language-python highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Annotated</span>
 
@@ -590,10 +621,18 @@
     <span class="n">aliases</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">ZeroOrMore</span><span class="p">]</span>
 
 
-<span class="n">cfg</span> <span class="o">=</span> <span class="n">parse_one</span><span class="p">(</span><span class="s1">&#39;(demo :name &quot;x&quot; :aliases &quot;a&quot; &quot;b&quot;)&#39;</span><span class="p">,</span> <span class="n">Demo</span><span class="p">)</span>
-<span class="k">assert</span> <span class="n">cfg</span> <span class="o">==</span> <span class="n">Demo</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">aliases</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">])</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;docs/examples/quickstart-single.mu&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">source</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+<span class="n">cfg</span> <span class="o">=</span> <span class="n">parse_one</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">Demo</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">cfg</span> <span class="o">==</span> <span class="n">Demo</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;backend&quot;</span><span class="p">,</span> <span class="n">aliases</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;api&quot;</span><span class="p">,</span> <span class="s2">&quot;service&quot;</span><span class="p">])</span>
 </code></pre></div>
 <h2 id="decode-multiple-expressions">Decode Multiple Expressions<a class="headerlink" href="#decode-multiple-expressions" title="Permanent link">&para;</a></h2>
+<p><code>docs/examples/quickstart-many.mu</code></p>
+<div class="language-clojure highlight"><pre><span></span><code><span class="p">(</span><span class="nf">run</span><span class="w"> </span><span class="s">&quot;lint&quot;</span><span class="p">)</span>
+<span class="p">(</span><span class="nf">include</span><span class="w"> </span><span class="s">&quot;defaults.mu&quot;</span><span class="p">)</span>
+<span class="p">(</span><span class="nf">run</span><span class="w"> </span><span class="s">&quot;test&quot;</span><span class="p">)</span>
+</code></pre></div>
 <div class="language-python highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">mu</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_many</span>
@@ -609,8 +648,26 @@
     <span class="n">path</span><span class="p">:</span> <span class="nb">str</span>
 
 
-<span class="n">result</span> <span class="o">=</span> <span class="n">parse_many</span><span class="p">(</span><span class="s1">&#39;(run &quot;lint&quot;) (include &quot;defaults.mu&quot;)&#39;</span><span class="p">,</span> <span class="n">Run</span> <span class="o">|</span> <span class="n">Include</span><span class="p">)</span>
-<span class="k">assert</span> <span class="n">result</span> <span class="o">==</span> <span class="p">[</span><span class="n">Run</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="s2">&quot;lint&quot;</span><span class="p">),</span> <span class="n">Include</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="s2">&quot;defaults.mu&quot;</span><span class="p">)]</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;docs/examples/quickstart-many.mu&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">source</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">parse_many</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">Run</span> <span class="o">|</span> <span class="n">Include</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">result</span> <span class="o">==</span> <span class="p">[</span><span class="n">Run</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="s2">&quot;lint&quot;</span><span class="p">),</span> <span class="n">Include</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="s2">&quot;defaults.mu&quot;</span><span class="p">),</span> <span class="n">Run</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="s2">&quot;test&quot;</span><span class="p">)]</span>
+</code></pre></div>
+<h2 id="literal-parsing-behavior">Literal Parsing Behavior<a class="headerlink" href="#literal-parsing-behavior" title="Permanent link">&para;</a></h2>
+<p>The parser supports single-quoted strings and typed numeric literals:</p>
+<div class="language-python highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">mu</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mu.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">AtomExpr</span><span class="p">,</span> <span class="n">SInt</span><span class="p">,</span> <span class="n">SRational</span><span class="p">,</span> <span class="n">SReal</span><span class="p">,</span> <span class="n">StringExpr</span>
+
+<span class="n">doc</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="s2">&quot;&#39;hello&#39; 123 1.25 10% 3/4 first&#39;&quot;</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">doc</span><span class="o">.</span><span class="n">exprs</span> <span class="o">==</span> <span class="p">[</span>
+    <span class="n">StringExpr</span><span class="p">(</span><span class="s2">&quot;hello&quot;</span><span class="p">),</span>
+    <span class="n">SInt</span><span class="p">(</span><span class="mi">123</span><span class="p">),</span>
+    <span class="n">SReal</span><span class="p">(</span><span class="mf">1.25</span><span class="p">),</span>
+    <span class="n">SReal</span><span class="p">(</span><span class="mf">0.1</span><span class="p">),</span>
+    <span class="n">SRational</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">)),</span>
+    <span class="n">AtomExpr</span><span class="p">(</span><span class="s2">&quot;first&#39;&quot;</span><span class="p">),</span>
+<span class="p">]</span>
 </code></pre></div>
 
 

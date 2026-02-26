@@ -481,6 +481,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#does-the-parser-support-single-quotes-and-numeric-literals" class="md-nav__link">
+    <span class="md-ellipsis">
+      Does the parser support single quotes and numeric literals?
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -551,6 +560,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#does-the-parser-support-single-quotes-and-numeric-literals" class="md-nav__link">
+    <span class="md-ellipsis">
+      Does the parser support single quotes and numeric literals?
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -584,6 +602,14 @@
 <p>Import from <code>mu</code>:</p>
 <div class="language-python highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">mu</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse</span><span class="p">,</span> <span class="n">parse_one</span>
 </code></pre></div>
+<h2 id="does-the-parser-support-single-quotes-and-numeric-literals">Does the parser support single quotes and numeric literals?<a class="headerlink" href="#does-the-parser-support-single-quotes-and-numeric-literals" title="Permanent link">&para;</a></h2>
+<p>Yes. Both <code>'...'</code> and <code>"..."</code> are parsed as strings. Numeric literals parse into
+typed AST nodes:</p>
+<ul>
+<li><code>SInt</code> for integers</li>
+<li><code>SReal</code> for real numbers and percentages</li>
+<li><code>SRational</code> for rational values</li>
+</ul>
 
 
 

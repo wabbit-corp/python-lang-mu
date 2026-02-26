@@ -667,6 +667,41 @@
 <td>String expression node (normal or raw Mu string literal).</td>
 </tr>
 <tr>
+<td><code>load</code></td>
+<td>function</td>
+<td><code>(source: 'Source', *, type: 'Any \| None' = None, encoding: 'str' = 'utf-8', registry: 'DecoderRegistry \| None' = None, preserve_spans: 'bool' = False) -&gt; 'Document \| Any'</code></td>
+<td><code>mu.loading</code></td>
+<td>Load Mu from a path or file-like object.</td>
+</tr>
+<tr>
+<td><code>loads</code></td>
+<td>function</td>
+<td><code>(source: 'str', *, type: 'Any \| None' = None, registry: 'DecoderRegistry \| None' = None, preserve_spans: 'bool' = False) -&gt; 'Document \| Any'</code></td>
+<td><code>mu.loading</code></td>
+<td>Load Mu from a string.</td>
+</tr>
+<tr>
+<td><code>dumps</code></td>
+<td>function</td>
+<td><code>(value: 'Any', *, indent: 'int \| None' = None, max_line_length: 'int' = 88, positional_first_id_or_name: 'bool' = False, positional_first_field_names: 'Iterable[str] \| None' = None, positional_single_field: 'bool' = True, preserve_spans: 'bool' = True) -&gt; 'str'</code></td>
+<td><code>mu.printer</code></td>
+<td>Serialize a value to Mu source text.</td>
+</tr>
+<tr>
+<td><code>dumps_concise</code></td>
+<td>function</td>
+<td><code>(value: 'Any', *, max_line_length: 'int' = 88, positional_first_id_or_name: 'bool' = False, positional_first_field_names: 'Iterable[str] \| None' = None, positional_single_field: 'bool' = True, preserve_spans: 'bool' = True) -&gt; 'str'</code></td>
+<td><code>mu.printer</code></td>
+<td>Serialize a value using concise formatting.</td>
+</tr>
+<tr>
+<td><code>dumps_pretty</code></td>
+<td>function</td>
+<td><code>(value: 'Any', *, indent: 'int' = 2, max_line_length: 'int' = 88, positional_first_id_or_name: 'bool' = False, positional_first_field_names: 'Iterable[str] \| None' = None, positional_single_field: 'bool' = True, preserve_spans: 'bool' = True) -&gt; 'str'</code></td>
+<td><code>mu.printer</code></td>
+<td>Serialize a value using pretty multiline formatting.</td>
+</tr>
+<tr>
 <td><code>decode</code></td>
 <td>function</td>
 <td><code>(expr: 'Expr', target: 'Any', *, registry: 'DecoderRegistry \| None' = None, path: 'str' = '$') -&gt; 'Any'</code></td>
@@ -697,7 +732,7 @@
 <tr>
 <td><code>parse</code></td>
 <td>function</td>
-<td><code>(input: str, no_spans: bool = True) -&gt; mu.types.Document</code></td>
+<td><code>(input: 'str', preserve_spans: 'bool' = False) -&gt; 'Document'</code></td>
 <td><code>mu.parser</code></td>
 <td>Parse Mu source text into a <code>Document</code>.</td>
 </tr>
