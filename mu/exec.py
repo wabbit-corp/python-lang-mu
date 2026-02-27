@@ -2,6 +2,7 @@
 
 import inspect
 import re
+import types
 import typing
 from abc import ABC, abstractmethod
 from collections import OrderedDict
@@ -10,6 +11,7 @@ from dataclasses import dataclass, field
 from fractions import Fraction
 from typing import Any
 
+from mu.arg_match import ArgArity, MatchArgsException, NamedArg, PositionalArg, match_args
 from mu.parser import parse
 from mu.quoted import Quoted
 from mu.types import (
@@ -39,18 +41,26 @@ class FunctionSignature:
     return_type: Any
 
     def __str__(self):
-        def format_type(t: Any):
-            if t == Any:
+        def format_type(t: Any) -> str:
+            if t is Any:
                 return "Any"
-            # if t has type arguments
-            if hasattr(t, "__args__"):
-                return f"{t.__origin__.__name__}[{', '.join([format_type(arg) for arg in t.__args__])}]"
-            return t.__name__
+            origin = typing.get_origin(t)
+            if origin in {typing.Union, types.UnionType}:
+                return " | ".join(format_type(arg) for arg in typing.get_args(t))
+            if origin is not None:
+                origin_name = getattr(origin, "__name__", str(origin))
+                args = typing.get_args(t)
+                if args:
+                    return f"{origin_name}[{', '.join(format_type(arg) for arg in args)}]"
+                return origin_name
+            if hasattr(t, "__name__"):
+                return t.__name__
+            return str(t)
 
         args_str = ", ".join(
             [f"{name}: {format_type(self.arg_types[name])}" for name in self.arg_names]
         )
-        return_str = self.return_type.__name__
+        return_str = format_type(self.return_type)
         return f"({args_str}) -> {return_str}"
 
 
@@ -141,6 +151,87 @@ class EvalContext:
         return str(self.env[func_name].get_signature())
 
 
+def _group_tail_to_match_args(
+    values: list[Expr],
+) -> list[NamedArg[str] | PositionalArg[Expr]]:
+    result: list[NamedArg[str] | PositionalArg[Expr]] = []
+    for value in values:
+        if isinstance(value, AtomExpr) and value.value.startswith(":"):
+            result.append(NamedArg(value.value[1:]))
+        else:
+            result.append(PositionalArg(value))
+    return result
+
+
+def _arity_for_parameter(parameter: inspect.Parameter) -> ArgArity:
+    if parameter.kind is inspect.Parameter.VAR_POSITIONAL:
+        return ArgArity.ZeroOrMore
+    if parameter.default is inspect.Parameter.empty:
+        return ArgArity.Required
+    return ArgArity.Optional
+
+
+def _bind_call_args_simple(tail: list[Expr]) -> tuple[list[Expr], dict[str, Expr]]:
+    args: list[Expr] = []
+    kwargs: dict[str, Expr] = {}
+    index = 0
+    while index < len(tail):
+        arg = tail[index]
+        if isinstance(arg, AtomExpr) and arg.value.startswith(":"):
+            key = arg.value[1:]
+            if index + 1 >= len(tail):
+                raise TypeError(f"Missing value for keyword argument {key}")
+            if key in kwargs:
+                raise TypeError(f"Duplicate keyword argument {key}")
+            kwargs[key] = tail[index + 1]
+            index += 2
+            continue
+        args.append(arg)
+        index += 1
+    return args, kwargs
+
+
+def _bind_call_args_with_matcher(
+    fn: Callable[..., Any], tail: list[Expr]
+) -> tuple[list[Expr], dict[str, Expr]]:
+    try:
+        signature = inspect.signature(fn)
+    except (TypeError, ValueError):
+        return _bind_call_args_simple(tail)
+
+    if any(
+        parameter.kind is inspect.Parameter.VAR_KEYWORD
+        for parameter in signature.parameters.values()
+    ):
+        return _bind_call_args_simple(tail)
+
+    parameters = [
+        (_arity_for_parameter(parameter), parameter.name)
+        for parameter in signature.parameters.values()
+    ]
+    arguments = _group_tail_to_match_args(tail)
+
+    try:
+        assigned = match_args(parameters, arguments)
+    except MatchArgsException as cause:
+        raise TypeError(str(cause)) from cause
+
+    args: list[Expr] = []
+    kwargs: dict[str, Expr] = {}
+    for parameter in signature.parameters.values():
+        values = assigned.get(parameter.name, [])
+        if parameter.kind is inspect.Parameter.VAR_POSITIONAL:
+            args.extend(values)
+            continue
+        if not values:
+            continue
+        if parameter.kind is inspect.Parameter.POSITIONAL_ONLY:
+            args.append(values[0])
+        else:
+            kwargs[parameter.name] = values[0]
+    return args, kwargs
+
+
 def eval_expr(
     ctx: EvalContext,
     e: Document | Expr | list[Expr],
@@ -225,18 +316,12 @@ def eval_expr(
             try:
                 fn = eval_expr(ctx, g[0])
                 tail = g[1:]
-                args = []
-                kwargs = {}
-                for index, arg in enumerate(tail):
-                    if isinstance(arg, AtomExpr) and arg.value.startswith(":"):
-                        key = arg.value[1:]
-                        assert index + 1 < len(
-                            g
-                        ), f"Missing value for keyword argument {key}"
-                        assert key not in kwargs, f"Duplicate keyword argument {key}"
-                        kwargs[key] = tail[index + 1]
-                    elif arg not in kwargs.values():
-                        args.append(arg)
+                if isinstance(fn, NativeFunction):
+                    args, kwargs = _bind_call_args_with_matcher(fn.fn, tail)
+                elif callable(fn):
+                    args, kwargs = _bind_call_args_with_matcher(fn, tail)
+                else:
+                    args, kwargs = _bind_call_args_simple(tail)
 
                 if isinstance(fn, CallableObject):
                     return fn(ctx, *args, **kwargs)

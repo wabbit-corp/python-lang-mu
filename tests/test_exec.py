@@ -1,7 +1,7 @@
 import pytest
 
 from mu.exec import EvalContext, EvalNameError, Quoted, eval_expr
-from mu.types import AtomExpr, Expr, GroupExpr, SequenceExpr, StringExpr
+from mu.types import AtomExpr, Expr, GroupExpr, SInt, SequenceExpr, StringExpr
 
 
 @pytest.fixture
@@ -107,6 +107,29 @@ def test_register_without_decorator(ctx):
 
     ctx.register(multiply)
     assert str(ctx.get_function_signature("multiply")) == "(a: int, b: int) -> int"
+
+
+def test_named_and_positional_args_bind_without_dropping_values(ctx):
+    @ctx.register
+    def pair(a: int, b: int) -> tuple[int, int]:
+        return (a, b)
+
+    assert eval_expr(ctx, GroupExpr([AtomExpr("pair"), AtomExpr(":a"), SInt(1), SInt(1)])) == (
+        1,
+        1,
+    )
+    assert eval_expr(ctx, GroupExpr([AtomExpr("pair"), AtomExpr(":a"), SInt(1), SInt(2)])) == (
+        1,
+        2,
+    )
+
+
+def test_function_signatures_support_pep604_union_types(ctx):
+    @ctx.register
+    def echo(value: int | str) -> int | str:
+        return value
+
+    assert str(ctx.get_function_signature("echo")) == "(value: int | str) -> int | str"
 
 
 def test_complex_call(ctx):
