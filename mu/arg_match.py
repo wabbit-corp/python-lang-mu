@@ -61,10 +61,10 @@ class ArgArity:
         return f"{{{self.min_required}..{self.max_required}}}"
 
 
-ArgArity.Required = ArgArity(1, 1)  # type: ignore[attr-defined]
-ArgArity.Optional = ArgArity(0, 1)  # type: ignore[attr-defined]
-ArgArity.ZeroOrMore = ArgArity(0, None)  # type: ignore[attr-defined]
-ArgArity.OneOrMore = ArgArity(1, None)  # type: ignore[attr-defined]
+ArgArity.Required = ArgArity(1, 1)
+ArgArity.Optional = ArgArity(0, 1)
+ArgArity.ZeroOrMore = ArgArity(0, None)
+ArgArity.OneOrMore = ArgArity(1, None)
 
 
 class MatchArgsException(Exception):

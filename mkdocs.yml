@@ -29,4 +29,5 @@ nav:
   - Stable API: api-stable.md
   - Experimental API: api-experimental.md
   - Compatibility: compatibility.md
+  - Development: development.md
   - FAQ: faq.md
