@@ -8,17 +8,7 @@ readme = "README.md"
 homepage = "https://github.com/wabbit-corp/python-lang-mu"
 repository = "https://github.com/wabbit-corp/python-lang-mu"
 keywords = ["configuration", "parser", "sexpr", "typed-decoding", "mu"]
-classifiers = [
-    "Development Status :: 3 - Alpha",
-    "Intended Audience :: Developers",
-    "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
-    "Programming Language :: Python :: 3.13",
-    "Topic :: Software Development :: Libraries :: Python Modules",
-]
+classifiers = ["Development Status :: 3 - Alpha", "Intended Audience :: Developers", "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)", "Programming Language :: Python :: 3", "Programming Language :: Python :: 3.10", "Programming Language :: Python :: 3.11", "Programming Language :: Python :: 3.12", "Programming Language :: Python :: 3.13", "Topic :: Software Development :: Libraries :: Python Modules"]
 packages = [{ include = "mu" }]
 
 [tool.poetry.urls]
@@ -26,6 +16,16 @@ packages = [{ include = "mu" }]
 
 [tool.poetry.dependencies]
 python = ">=3.10"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = ">=8.0.0,<9.0.0"
+mypy = ">=1.10.0,<2.0.0"
+ruff = ">=0.8.0,<1.0.0"
+black = ">=24.0.0,<26.0.0"
+coverage = ">=7.0.0,<8.0.0"
+build = ">=1.2.0,<2.0.0"
+twine = ">=5.0.0,<6.0.0"
 
 [tool.poetry.group.docs.dependencies]
 mkdocs = ">=1.6,<2.0"
@@ -43,6 +43,23 @@ target-version = "py310"
 [tool.ruff.lint]
 select = ["F", "E", "W", "I", "B", "UP"]
 ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.10"
+check_untyped_defs = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+no_implicit_optional = true
+pretty = true
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["B"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.deptry]
+per_rule_ignores = { "DEP004" = ["pytest", "mypy", "ruff", "black", "coverage", "build", "twine", "codespell", "mkdocs", "mkdocs-material"] }
 
 [tool.coverage.run]
 branch = true
