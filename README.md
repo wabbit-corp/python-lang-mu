@@ -161,7 +161,10 @@ are unsupported and may change without notice.
 
 - User docs: <https://wabbit-corp.github.io/python-lang-mu/>
 - Development guide: `docs/development.md`
+- Changelog and release notes: `CHANGELOG.md`
 - Contribution process: `CONTRIBUTING.md`
+- Support and bug reports: <https://github.com/wabbit-corp/python-lang-mu/issues>
+- Security-sensitive or private questions: `wabbit@wabbit.one`
 
 ## Python Support
 
